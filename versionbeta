@@ -1,0 +1,1721 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Motor de Brechas · Infra.Coop v0.3</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#1a1916;--ink-mid:#4a4844;--ink-light:#8a8880;--ink-faint:#d4d2cc;--paper:#f5f3ee;--paper-warm:#ece9e2;--surface:#fff;--accent:#534AB7;--accent-bg:#EEEDFE;--ok:#1d6e4a;--ok-bg:#e8f5ef;--warn:#7a4f10;--warn-bg:#fdf3e3;--gap-crit:#534AB7;--gap-part:#7F77DD;--gap-cov:#1d6e4a;--serif:'DM Serif Display',Georgia,serif;--sans:'Instrument Sans',system-ui,sans-serif;--mono:'DM Mono','Courier New',monospace;--r:6px;--r-lg:12px;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--sans);background:var(--paper);color:var(--ink);min-height:100vh;line-height:1.6;}
+header{border-bottom:1px solid var(--ink-faint);padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:60px;background:var(--paper);position:sticky;top:0;z-index:100;gap:1rem;}
+.logo{display:flex;align-items:baseline;gap:2px;text-decoration:none;}
+.logo-text{font-family:var(--serif);font-size:22px;color:var(--ink);letter-spacing:-0.03em;line-height:1;}
+.logo-dot{width:5px;height:5px;border-radius:50%;background:var(--accent);display:inline-block;margin:0 1px 4px;}
+.nav-pills{display:flex;gap:0;align-items:stretch;overflow-x:auto;scrollbar-width:none;}
+.nav-pills::-webkit-scrollbar{display:none;}
+.nav-pill{
+  font-size:12px;font-weight:400;font-family:var(--sans);
+  padding:0 14px;height:60px;
+  border:none;border-bottom:2px solid transparent;
+  cursor:pointer;background:transparent;
+  color:var(--ink-light);
+  letter-spacing:0.01em;
+  transition:color .15s,border-color .15s;
+  white-space:nowrap;
+  display:flex;align-items:center;
+}
+.nav-pill:hover{color:var(--ink);border-bottom-color:var(--ink-faint);}
+.nav-pill.active{color:var(--accent);font-weight:600;border-bottom-color:var(--accent);}
+.header-tag{font-size:11px;font-family:var(--mono);color:var(--ink-light);letter-spacing:.05em;flex-shrink:0;}
+.container{max-width:860px;margin:0 auto;padding:3rem 2rem 6rem;}
+.hero{margin-bottom:3rem;padding-bottom:2.5rem;border-bottom:1px solid var(--ink-faint);}
+.hero-eyebrow{font-size:11px;font-family:var(--mono);color:var(--ink-light);letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px;}
+.hero h1{font-family:var(--serif);font-size:clamp(2rem,5vw,3rem);line-height:1.1;letter-spacing:-0.03em;color:var(--ink);margin-bottom:12px;max-width:600px;}
+.hero h1 em{font-style:italic;color:var(--accent);}
+.hero-sub{font-size:15px;color:var(--ink-mid);max-width:520px;line-height:1.65;}
+.question-block{background:white;border:1px solid var(--ink-faint);border-radius:var(--r-lg);padding:1.5rem;margin-bottom:1.5rem;transition:border-color .2s,box-shadow .2s;}
+.question-block:focus-within{border-color:var(--ink);box-shadow:0 0 0 3px rgba(26,25,22,.06);}
+.question-label{font-size:12px;font-weight:600;color:var(--ink-mid);letter-spacing:.06em;text-transform:uppercase;margin-bottom:10px;display:block;}
+textarea#pregunta{width:100%;font-family:var(--serif);font-size:18px;color:var(--ink);background:transparent;border:none;outline:none;resize:none;min-height:80px;line-height:1.5;letter-spacing:-0.01em;}
+textarea#pregunta::placeholder{color:var(--ink-faint);font-style:italic;}
+.question-footer{display:flex;align-items:center;justify-content:space-between;margin-top:12px;padding-top:12px;border-top:1px solid var(--ink-faint);gap:12px;flex-wrap:wrap;}
+.char-count{font-size:11px;font-family:var(--mono);color:var(--ink-light);}
+.question-actions{display:flex;gap:8px;align-items:center;}
+.btn-primary{background:var(--ink);color:var(--paper);border:none;border-radius:var(--r);padding:9px 20px;font-family:var(--sans);font-size:13px;font-weight:600;cursor:pointer;transition:background .15s,transform .1s;display:flex;align-items:center;gap:6px;letter-spacing:.01em;}
+.btn-primary:hover{background:#2e2d2a;}.btn-primary:active{transform:scale(.98);}.btn-primary:disabled{background:var(--ink-faint);cursor:not-allowed;}
+.btn-ghost{background:transparent;color:var(--ink-mid);border:1px solid var(--ink-faint);border-radius:var(--r);padding:8px 14px;font-family:var(--sans);font-size:13px;cursor:pointer;transition:background .15s,border-color .15s;}
+.btn-ghost:hover{background:var(--paper-warm);border-color:var(--ink-mid);}
+.btn-warn{background:#EEEDFE;color:#3C3489;border:1px solid #AFA9EC;border-radius:var(--r);padding:8px 14px;font-family:var(--sans);font-size:13px;font-weight:600;cursor:pointer;}
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:2rem;align-items:center;}
+.filter-label{font-size:12px;color:var(--ink-light);font-weight:500;margin-right:4px;}
+select.filter-select{font-family:var(--sans);font-size:12px;color:var(--ink);background:white;border:1px solid var(--ink-faint);border-radius:20px;padding:5px 28px 5px 12px;appearance:none;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%238a8880'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;outline:none;transition:border-color .15s;}
+select.filter-select:hover,select.filter-select:focus{border-color:var(--ink);}
+.loading-state{display:none;align-items:center;gap:10px;padding:1rem 0;color:var(--ink-mid);font-size:14px;}
+.loading-state.visible{display:flex;}
+.spinner{width:18px;height:18px;border:2px solid var(--ink-faint);border-top-color:var(--ink);border-radius:50%;animation:spin .8s linear infinite;flex-shrink:0;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.loading-steps{font-size:12px;font-family:var(--mono);color:var(--ink-light);}
+.results-section{display:none;animation:fadeIn .4s ease;}
+.results-section.visible{display:block;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+.gap-score-card{background:white;border:1px solid var(--ink-faint);border-radius:var(--r-lg);padding:1.5rem;margin-bottom:1.5rem;display:flex;gap:1.5rem;align-items:flex-start;flex-wrap:wrap;}
+.gap-meter{flex-shrink:0;width:90px;text-align:center;}
+.gap-circle{width:80px;height:80px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;margin:0 auto 8px;border:3px solid currentColor;}
+.gap-circle.critica{color:var(--gap-crit);background:#EEEDFE;}.gap-circle.parcial{color:var(--gap-part);background:#EEEDFE;}.gap-circle.cubierta{color:var(--gap-cov);background:#e8f5ef;}
+.gap-score-num{font-family:var(--serif);font-size:26px;line-height:1;font-weight:400;}
+.gap-score-label{font-size:10px;font-family:var(--mono);opacity:.7;letter-spacing:.05em;}
+.gap-category-badge{display:inline-block;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;padding:3px 8px;border-radius:3px;font-family:var(--mono);}
+.gap-category-badge.critica{background:#CECBF6;color:#26215C;}.gap-category-badge.parcial{background:#EEEDFE;color:#534AB7;}.gap-category-badge.cubierta{background:var(--ok-bg);color:var(--ok);}
+.gap-info{flex:1;min-width:240px;}.gap-info h3{font-family:var(--serif);font-size:18px;line-height:1.3;margin-bottom:8px;letter-spacing:-0.01em;}
+.gap-synthesis{font-size:14px;color:var(--ink-mid);line-height:1.65;margin-bottom:10px;}
+.gap-meta{display:flex;gap:12px;flex-wrap:wrap;font-size:11px;font-family:var(--mono);color:var(--ink-light);}
+.score-bar-wrap{margin-top:10px;}.score-bar-track{height:4px;background:var(--ink-faint);border-radius:2px;overflow:hidden;}
+.score-bar-fill{height:100%;border-radius:2px;transition:width .8s ease;}
+.score-bar-fill.critica{background:var(--gap-crit);}.score-bar-fill.parcial{background:var(--gap-part);}.score-bar-fill.cubierta{background:var(--gap-cov);}
+.result-section-title{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-light);margin:1.8rem 0 .75rem;font-family:var(--mono);display:flex;align-items:center;gap:8px;}
+.result-section-title::after{content:'';flex:1;height:1px;background:var(--ink-faint);}
+.agenda-scores{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;}
+.agenda-score-pill{display:flex;align-items:center;gap:6px;padding:5px 10px;border-radius:20px;border:1px solid var(--ink-faint);background:white;cursor:default;transition:border-color .15s;}
+.agenda-score-pill:hover{border-color:var(--ink-mid);}
+.agenda-score-icon{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.agenda-score-icon svg{width:11px;height:11px;}
+.agenda-score-label{font-size:10px;font-family:var(--mono);color:var(--ink-mid);letter-spacing:.03em;}
+.agenda-score-val{font-size:11px;font-weight:600;font-family:var(--mono);}
+.agenda-score-pill.tecnologica .agenda-score-icon{background:#E6F1FB;}
+.agenda-score-pill.tecnologica .agenda-score-val{color:#0C447C;}
+.agenda-score-pill.datos .agenda-score-icon{background:#EEEDFE;}
+.agenda-score-pill.datos .agenda-score-val{color:#3C3489;}
+.agenda-score-pill.genero .agenda-score-icon{background:#FBEAF0;}
+.agenda-score-pill.genero .agenda-score-val{color:#72243E;}
+.score-total-num{font-family:var(--serif);font-size:52px;line-height:1;letter-spacing:-0.03em;font-weight:400;}
+.score-total-label{font-size:10px;font-family:var(--mono);color:var(--ink-light);letter-spacing:.08em;text-transform:uppercase;margin-top:2px;}
+.score-total-block{text-align:center;flex-shrink:0;width:100px;}
+.score-total-block .gap-category-badge{margin-top:8px;display:inline-block;}
+/* TERMÓMETRO DE INCIDENCIA */
+.termometro-block{background:white;border:1px solid var(--ink-faint);border-radius:var(--r-lg);padding:1.25rem 1.5rem;margin-top:1.5rem;}
+.termometro-header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:1rem;}
+.termometro-title{font-size:13px;font-weight:600;color:var(--ink);}
+.termometro-sub{font-size:12px;color:var(--ink-mid);margin-top:2px;}
+.termometro-opciones{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:1rem;}
+.termometro-chip{font-size:12px;font-family:var(--sans);color:var(--ink-mid);background:var(--paper);border:1px solid var(--ink-faint);border-radius:20px;padding:6px 14px;cursor:pointer;transition:all .15s;font-weight:500;}
+.termometro-chip:hover{border-color:var(--ink);color:var(--ink);}
+.termometro-chip.selected{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+.termometro-chip.todas{border-color:var(--accent);color:var(--accent);}
+.termometro-chip.todas.selected{background:var(--accent);color:white;border-color:var(--accent);}
+.btn-incidencia{background:var(--ink);color:var(--paper);border:none;border-radius:var(--r);padding:9px 20px;font-family:var(--sans);font-size:13px;font-weight:600;cursor:pointer;transition:background .15s,transform .1s;display:flex;align-items:center;gap:6px;}
+.btn-incidencia:hover{background:#2e2d2a;}.btn-incidencia:active{transform:scale(.98);}
+.btn-incidencia:disabled{background:var(--ink-faint);cursor:not-allowed;}
+/* INFOGRAFÍA */
+.infografia-panel{display:none;margin-top:1rem;border-top:1px solid var(--ink-faint);padding-top:1rem;}
+.infografia-panel.visible{display:block;animation:fadeIn .4s ease;}
+.infografia-canvas{background:var(--paper);border-radius:var(--r);padding:1.5rem;position:relative;}
+.infografia-top{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-bottom:1.25rem;}
+.infografia-eyebrow{font-size:10px;font-family:var(--mono);color:var(--ink-light);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px;}
+.infografia-titulo{font-family:var(--serif);font-size:20px;line-height:1.2;letter-spacing:-0.02em;color:var(--ink);max-width:440px;}
+.infografia-score-badge{flex-shrink:0;text-align:center;background:white;border-radius:var(--r);padding:.6rem .9rem;border:1px solid var(--ink-faint);}
+.infografia-score-grande{font-family:var(--serif);font-size:36px;line-height:1;font-weight:400;}
+.infografia-score-etiq{font-size:10px;font-family:var(--mono);color:var(--ink-light);text-transform:uppercase;letter-spacing:.06em;}
+.infografia-marco{background:white;border-radius:var(--r);padding:.85rem 1rem;margin-bottom:.75rem;}
+.infografia-marco-label{font-size:10px;font-family:var(--mono);color:var(--ink-light);letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px;}
+.infografia-marco-nombre{font-size:13px;font-weight:600;color:var(--ink);margin-bottom:3px;}
+.infografia-marco-texto{font-size:12px;color:var(--ink-mid);line-height:1.5;}
+.infografia-brecha-barra{margin-top:1rem;}
+.infografia-brecha-label{font-size:11px;font-family:var(--mono);color:var(--ink-light);margin-bottom:6px;display:flex;justify-content:space-between;}
+.infografia-track{height:8px;background:var(--ink-faint);border-radius:4px;overflow:hidden;}
+.infografia-fill{height:100%;border-radius:4px;transition:width 1s ease;}
+.infografia-footer{display:flex;align-items:center;justify-content:space-between;margin-top:1rem;padding-top:.75rem;border-top:1px solid var(--ink-faint);font-size:11px;font-family:var(--mono);color:var(--ink-light);flex-wrap:wrap;gap:8px;}
+/* BAJA LA BRECHA */
+.baja-brecha-block{background:white;border:1px solid var(--ink-faint);border-radius:var(--r-lg);padding:1.25rem 1.5rem;margin-top:1rem;}
+.baja-brecha-header{display:flex;align-items:center;gap:10px;margin-bottom:.75rem;flex-wrap:wrap;}
+.baja-brecha-title{font-size:13px;font-weight:600;color:var(--ink);}
+.baja-brecha-sub{font-size:12px;color:var(--ink-mid);margin-bottom:.75rem;line-height:1.5;}
+.baja-brecha-acciones{display:flex;gap:8px;flex-wrap:wrap;}
+.btn-descarga{display:flex;align-items:center;gap:7px;background:var(--paper);border:1px solid var(--ink-faint);border-radius:var(--r);padding:9px 16px;font-family:var(--sans);font-size:13px;font-weight:500;cursor:pointer;transition:background .15s,border-color .15s;color:var(--ink);}
+.btn-descarga:hover{background:var(--paper-warm);border-color:var(--ink-mid);}
+.btn-descarga svg{flex-shrink:0;}
+.dataset-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px;margin-bottom:.5rem;}
+.dataset-card{background:white;border:1px solid var(--ink-faint);border-radius:var(--r);padding:1rem;transition:border-color .15s;cursor:pointer;}
+.dataset-card:hover{border-color:var(--ink-mid);}
+.dataset-card-header{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:6px;}
+.dataset-card-title{font-size:13px;font-weight:600;color:var(--ink);line-height:1.4;flex:1;}
+.quality-badge{flex-shrink:0;font-size:10px;font-family:var(--mono);padding:2px 6px;border-radius:3px;font-weight:500;}
+.quality-badge.completa,.quality-badge.completo{background:var(--ok-bg);color:var(--ok);}
+.quality-badge.parcial{background:#fdf0d8;color:var(--warn);}
+.quality-badge.nula,.quality-badge.desactualizado{background:#CECBF6;color:#26215C;}
+.quality-badge.desconocida{background:var(--paper-warm);color:var(--ink-light);}
+.dataset-card-meta{font-size:11px;font-family:var(--mono);color:var(--ink-light);display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px;}
+.dataset-sim{font-size:11px;font-family:var(--mono);color:var(--ink-light);display:flex;align-items:center;gap:6px;}
+.sim-bar{flex:1;height:3px;background:var(--ink-faint);border-radius:2px;overflow:hidden;width:60px;}
+.sim-bar-fill{height:100%;background:var(--ink);border-radius:2px;opacity:.5;}
+.framework-list{display:flex;flex-direction:column;gap:10px;}
+.framework-card{background:white;border:1px solid var(--ink-faint);border-left:3px solid var(--accent);border-radius:0 var(--r) var(--r) 0;padding:1rem 1.2rem;cursor:pointer;}
+.framework-card-header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:6px;}
+.framework-nombre{font-size:13px;font-weight:600;color:var(--ink);}
+.framework-tipo{font-size:10px;font-family:var(--mono);color:var(--ink-light);padding:2px 6px;background:var(--paper-warm);border-radius:3px;white-space:nowrap;flex-shrink:0;}
+.framework-obligacion{font-size:13px;color:var(--ink-mid);line-height:1.55;margin-bottom:6px;}
+.framework-meta{font-size:11px;font-family:var(--mono);color:var(--ink-light);display:flex;gap:10px;}
+.mapa-section{margin-top:3rem;padding-top:2rem;border-top:1px solid var(--ink-faint);}
+.mapa-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;}
+.mapa-card{background:white;border:1px solid var(--ink-faint);border-radius:var(--r);padding:1rem;cursor:pointer;transition:border-color .15s,transform .15s;}
+.mapa-card:hover{border-color:var(--ink);transform:translateY(-2px);}
+.mapa-card-topic{font-size:13px;font-weight:600;color:var(--ink);margin-bottom:6px;}
+.mapa-card-count{font-family:var(--serif);font-size:28px;line-height:1;margin-bottom:4px;}
+.mapa-card-label{font-size:11px;font-family:var(--mono);color:var(--ink-light);margin-bottom:10px;}
+.mapa-mini-bar{height:3px;background:var(--ink-faint);border-radius:2px;overflow:hidden;}
+.mapa-mini-fill{height:100%;background:var(--accent);border-radius:2px;}
+.toast{position:fixed;bottom:2rem;right:2rem;background:var(--ink);color:var(--paper);font-size:13px;padding:10px 16px;border-radius:var(--r);font-family:var(--mono);opacity:0;transform:translateY(8px);transition:opacity .2s,transform .2s;pointer-events:none;z-index:400;}
+.toast.show{opacity:1;transform:translateY(0);}
+ 
+/* BACKEND */
+.backend-panel{padding:2rem 0 4rem;}
+.backend-alert{background:#EEEDFE;border:1px solid #AFA9EC;border-radius:var(--r);padding:.75rem 1rem;font-size:13px;color:#3C3489;margin-bottom:1.5rem;line-height:1.5;}
+.form-card{background:white;border:1px solid var(--ink-faint);border-radius:var(--r-lg);padding:1.5rem;margin-bottom:1rem;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+.form-row.full{grid-template-columns:1fr;}.form-row.three{grid-template-columns:1fr 1fr 1fr;}
+.field{display:flex;flex-direction:column;gap:5px;}
+.field label{font-size:11px;font-weight:600;color:var(--ink-mid);letter-spacing:.06em;text-transform:uppercase;font-family:var(--mono);}
+.field input,.field select,.field textarea{font-family:var(--sans);font-size:13px;color:var(--ink);background:var(--paper);border:1px solid var(--ink-faint);border-radius:var(--r);padding:8px 10px;outline:none;transition:border-color .15s;}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--ink);}
+.field textarea{resize:vertical;min-height:72px;line-height:1.5;}
+.field .field-hint{font-size:11px;color:var(--ink-light);font-family:var(--mono);}
+.agenda-checkboxes{display:flex;flex-wrap:wrap;gap:8px;}
+.agenda-check{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-mid);cursor:pointer;background:var(--paper);border:1px solid var(--ink-faint);border-radius:20px;padding:5px 12px;transition:border-color .15s,background .15s;}
+.agenda-check:has(input:checked){border-color:var(--ink);background:white;color:var(--ink);}
+.agenda-check input{width:13px;height:13px;accent-color:var(--ink);}
+.form-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:1rem;padding-top:1rem;border-top:1px solid var(--ink-faint);}
+ 
+/* ANÁLISIS AUTO */
+.analisis-panel{background:white;border:1px solid var(--ink-faint);border-radius:var(--r-lg);padding:1.25rem;margin-top:1rem;display:none;}
+.analisis-panel.visible{display:block;animation:fadeIn .3s ease;}
+.analisis-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:8px;}
+.analisis-title{font-size:13px;font-weight:600;color:var(--ink);}
+.confianza-badge{font-size:11px;font-family:var(--mono);padding:3px 10px;border-radius:3px;font-weight:500;}
+.confianza-badge.alta{background:var(--ok-bg);color:var(--ok);}.confianza-badge.media{background:#fdf0d8;color:var(--warn);}.confianza-badge.baja{background:#CECBF6;color:#26215C;}
+.senales-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:1rem;}
+.senal-item{background:var(--paper);border-radius:var(--r);padding:.6rem .8rem;}
+.senal-label{font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;font-family:var(--mono);color:var(--ink-light);margin-bottom:3px;}
+.senal-valor{font-size:12px;color:var(--ink);}
+.senal-score{font-size:10px;font-family:var(--mono);color:var(--ink-light);margin-top:2px;}
+.sugerencia-final{display:flex;align-items:center;gap:10px;padding:.8rem 1rem;border-radius:var(--r);margin-bottom:1rem;}
+.sugerencia-final.completa{background:var(--ok-bg);}.sugerencia-final.parcial{background:#fdf0d8;}.sugerencia-final.nula{background:#EEEDFE;}
+.sugerencia-label{font-size:11px;font-family:var(--mono);color:var(--ink-light);}
+.sugerencia-valor{font-size:15px;font-weight:600;font-family:var(--serif);}
+.sugerencia-final.completa .sugerencia-valor{color:var(--ok);}.sugerencia-final.parcial .sugerencia-valor{color:var(--warn);}.sugerencia-final.nula .sugerencia-valor{color:var(--gap-crit);}
+.revisor-section{border-top:1px solid var(--ink-faint);padding-top:1rem;margin-top:1rem;}
+.revisor-title{font-size:12px;font-weight:600;color:var(--ink-mid);letter-spacing:.05em;text-transform:uppercase;font-family:var(--mono);margin-bottom:.75rem;}
+.fundamento-area{width:100%;font-family:var(--sans);font-size:13px;color:var(--ink);background:var(--paper);border:1px solid var(--ink-faint);border-radius:var(--r);padding:8px 10px;outline:none;transition:border-color .15s;resize:vertical;min-height:80px;line-height:1.5;}
+.fundamento-area:focus{border-color:var(--ink);}
+.revisor-actions{display:flex;gap:8px;margin-top:.75rem;flex-wrap:wrap;}
+ 
+/* MONITOR COLECTIVO */
+.monitor-grid-agendas{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1.5rem;}
+.agenda-monitor-card{background:white;border:1px solid var(--ink-faint);border-radius:var(--r-lg);padding:1rem 1.1rem;}
+.agenda-monitor-eyebrow{font-size:10px;font-family:var(--mono);letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px;font-weight:600;}
+.agenda-monitor-total{font-family:var(--serif);font-size:32px;line-height:1;margin-bottom:4px;}
+.agenda-monitor-label{font-size:11px;font-family:var(--mono);color:var(--ink-light);margin-bottom:10px;}
+.agenda-topic-list{display:flex;flex-direction:column;gap:5px;}
+.agenda-topic-row{display:flex;align-items:center;gap:8px;font-size:12px;}
+.agenda-topic-name{color:var(--ink-mid);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.agenda-topic-bar-wrap{width:60px;height:3px;background:var(--ink-faint);border-radius:2px;overflow:hidden;flex-shrink:0;}
+.agenda-topic-bar-fill{height:100%;border-radius:2px;}
+.agenda-topic-count{font-family:var(--mono);font-size:11px;color:var(--ink-light);min-width:20px;text-align:right;}
+ 
+/* CAPA 3 — ¿Qué datos queremos? */
+.evolucion-hero{margin-bottom:2rem;padding-bottom:2rem;border-bottom:1px solid var(--ink-faint);}
+.semana-tabs{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:1.5rem;}
+.semana-tab{font-size:11px;font-family:var(--mono);padding:5px 12px;border-radius:20px;border:1px solid var(--ink-faint);cursor:pointer;background:white;color:var(--ink-mid);transition:all .15s;}
+.semana-tab:hover{border-color:var(--ink);color:var(--ink);}
+.semana-tab.active{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+.evolucion-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:1.5rem;}
+.evolucion-card{background:white;border:1px solid var(--ink-faint);border-radius:var(--r-lg);padding:1rem 1.1rem;}
+.evolucion-card-eyebrow{font-size:10px;font-family:var(--mono);color:var(--ink-light);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px;}
+.evolucion-card-num{font-family:var(--serif);font-size:28px;line-height:1;margin-bottom:2px;}
+.evolucion-card-delta{font-size:11px;font-family:var(--mono);margin-top:4px;}
+.delta-pos{color:var(--gap-crit);}
+.delta-neu{color:var(--ink-light);}
+.chart-wrap{background:white;border:1px solid var(--ink-faint);border-radius:var(--r-lg);padding:1.25rem;margin-bottom:1.5rem;}
+.chart-title{font-size:12px;font-weight:600;color:var(--ink);margin-bottom:1rem;}
+.chart-inner{position:relative;height:180px;}
+.chart-bars{display:flex;align-items:flex-end;gap:6px;height:100%;}
+.chart-bar-group{display:flex;flex-direction:column;align-items:center;flex:1;height:100%;justify-content:flex-end;gap:3px;}
+.chart-bar{width:100%;border-radius:3px 3px 0 0;transition:height .6s ease;min-height:2px;}
+.chart-bar-label{font-size:9px;font-family:var(--mono);color:var(--ink-light);text-align:center;margin-top:4px;white-space:nowrap;}
+.chart-legend{display:flex;gap:12px;flex-wrap:wrap;margin-top:.75rem;font-size:11px;color:var(--ink-mid);}
+.chart-legend-dot{width:8px;height:8px;border-radius:2px;display:inline-block;margin-right:4px;vertical-align:middle;}
+.agenda-evolucion-section{margin-top:1.5rem;}
+.agenda-evol-card{background:white;border:1px solid var(--ink-faint);border-radius:var(--r-lg);padding:1rem 1.1rem;margin-bottom:10px;}
+.agenda-evol-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;flex-wrap:wrap;gap:8px;}
+.agenda-evol-title{font-size:13px;font-weight:600;}
+.agenda-evol-badges{display:flex;gap:6px;flex-wrap:wrap;}
+.semana-badge{font-size:10px;font-family:var(--mono);padding:2px 8px;border-radius:3px;}
+.audit-note{background:var(--paper);border:1px solid var(--ink-faint);border-radius:var(--r);padding:.85rem 1rem;margin-top:1.5rem;font-size:12px;color:var(--ink-mid);line-height:1.6;}
+.audit-note strong{color:var(--ink);}
+@media(max-width:600px){.monitor-grid-agendas,.evolucion-grid{grid-template-columns:1fr;}#comparativo-grid{grid-template-columns:1fr;}}
+ 
+/* TABLA */
+.records-table{width:100%;border-collapse:collapse;font-size:12px;}
+.records-table th{text-align:left;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-light);font-family:var(--mono);padding:6px 8px;border-bottom:1px solid var(--ink-faint);}
+.records-table td{padding:8px;border-bottom:1px solid var(--ink-faint);color:var(--ink-mid);vertical-align:top;}
+.records-table tr:last-child td{border-bottom:none;}
+.records-table tr:hover td{background:var(--paper-warm);}
+.tag-agenda{font-size:10px;font-family:var(--mono);padding:1px 6px;border-radius:3px;margin-right:3px;display:inline-block;}
+.tag-agenda.agenda-tecnologica{background:#E6F1FB;color:#0C447C;}.tag-agenda.agenda-datos{background:#EEEDFE;color:#3C3489;}.tag-agenda.agenda-genero{background:#FBEAF0;color:#72243E;}
+.empty-records{text-align:center;padding:2rem;color:var(--ink-light);font-size:13px;}
+.estado-badge{font-size:10px;font-family:var(--mono);padding:2px 7px;border-radius:3px;font-weight:500;white-space:nowrap;}
+.estado-badge.borrador{background:var(--paper-warm);color:var(--ink-mid);}
+.estado-badge.revisando{background:#fdf0d8;color:var(--warn);}
+.estado-badge.nodo-colectivo{background:#E6F1FB;color:#0C447C;}
+.estado-badge.publicado{background:var(--ok-bg);color:var(--ok);}
+ 
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(26,25,22,.55);z-index:200;align-items:center;justify-content:center;padding:1rem;}
+.modal-overlay.visible{display:flex;}
+.modal-box{background:white;border-radius:var(--r-lg);padding:1.75rem;max-width:520px;width:100%;}
+.modal-title{font-family:var(--serif);font-size:20px;letter-spacing:-0.02em;margin-bottom:.5rem;}
+.modal-sub{font-size:13px;color:var(--ink-mid);line-height:1.6;margin-bottom:1.25rem;}
+.modal-analisis{background:var(--paper);border-radius:var(--r);padding:.8rem 1rem;margin-bottom:1.25rem;font-size:13px;}
+.modal-analisis .mlabel{font-size:10px;font-family:var(--mono);color:var(--ink-light);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;}
+.modal-analisis .mvalor{font-weight:600;color:var(--ink);}
+.modal-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;}
+ 
+/* NODO COLECTIVO */
+.colectivo-panel{background:white;border:1px solid var(--ink-faint);border-radius:var(--r-lg);padding:1.25rem;margin-top:1rem;display:none;}
+.colectivo-panel.visible{display:block;animation:fadeIn .3s ease;}
+.colectivo-header{display:flex;align-items:center;gap:10px;margin-bottom:1rem;flex-wrap:wrap;}
+.colectivo-title{font-size:14px;font-weight:600;color:var(--ink);}
+.consenso-bar{display:flex;gap:6px;align-items:center;font-size:12px;font-family:var(--mono);color:var(--ink-light);}
+.consenso-dot{width:10px;height:10px;border-radius:50%;border:1.5px solid var(--ink-faint);background:white;transition:background .2s,border-color .2s;}
+.consenso-dot.aprobado{background:var(--ok);border-color:var(--ok);}.consenso-dot.rechazado{background:var(--gap-crit);border-color:var(--gap-crit);}
+.revisor-block{background:var(--paper);border-radius:var(--r);padding:.75rem 1rem;margin-bottom:.5rem;}
+.revisor-block-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:.5rem;}
+.revisor-block-label{font-size:11px;font-weight:600;font-family:var(--mono);color:var(--ink-mid);text-transform:uppercase;letter-spacing:.05em;}
+.revisor-block-estado{font-size:10px;font-family:var(--mono);padding:2px 8px;border-radius:3px;}
+.revisor-block-estado.pendiente{background:var(--paper-warm);color:var(--ink-light);}
+.revisor-block-estado.aprobado{background:var(--ok-bg);color:var(--ok);}
+.confirmacion-final{background:var(--paper);border-radius:var(--r);padding:.75rem 1rem;margin-top:.75rem;display:none;}
+.confirmacion-final.visible{display:block;}
+ 
+@media(max-width:600px){.container{padding:2rem 1rem 5rem;}.hero h1{font-size:1.8rem;}header{padding:0 1rem;}.header-tag{display:none;}.form-row,.form-row.three,.senales-grid{grid-template-columns:1fr;}.modal-box{padding:1.25rem;}}
+</style>
+</head>
+<body>
+ 
+<header>
+  <div class="logo">
+    <span class="logo-text">Infra</span><span class="logo-dot"></span><span class="logo-text">Coop</span>
+  </div>
+  <nav class="nav-pills">
+    <button class="nav-pill active" onclick="showPanel('about')">¿Qué es Infra.Coop?</button>
+    <button class="nav-pill" onclick="showPanel('motor')">Monitor de brechas</button>
+    <button class="nav-pill" onclick="showPanel('mapa')">Monitor Colectivo</button>
+    <button class="nav-pill" onclick="showPanel('capa3')">¿Qué datos queremos?</button>
+    <button class="nav-pill" onclick="showPanel('backend')" style="font-size:11px;color:var(--ink-light);opacity:.7;font-family:var(--mono);">Backend ↗</button>
+  </nav>
+  <span class="header-tag" style="display:none;">v0.3</span>
+</header>
+ 
+<div class="container">
+ 
+<!-- SOBRE INFRA.COOP -->
+<div id="panel-about">
+  <div class="hero">
+    <p class="hero-eyebrow">Infra.Coop</p>
+    <h1>¿Qué es <em>Infra.Coop</em>?</h1>
+  </div>
+ 
+  <div style="font-size:15px;line-height:1.85;color:var(--ink-mid);max-width:680px;">
+ 
+    <p style="margin-bottom:1.25rem;color:var(--ink);font-size:16px;">Infra.Coop es la dimensión tecnosocial de Data Cooperativas Latinas. Es una infraestructura digital inclusiva basada en los conceptos y modelo de gobernanza de datos cooperativos que encontrarás en el sitio.</p>
+ 
+    <p style="margin-bottom:.5rem;font-weight:600;color:var(--ink);font-size:15px;">Monitor de Brechas</p>
+    <p style="margin-bottom:1.25rem;">El propósito es evidenciar el rol que juegan las preguntas —la fase de problema— al momento de iniciar un proceso de recolección de datos. Qué nos preguntemos, cómo y para quién incide en qué datos se definen recolectar. Esto mismo sucede cuando una Oficina Nacional de Estadísticas o un área de gobierno se propone diseñar un proyecto de datos.</p>
+    <p style="margin-bottom:1.25rem;">Con la PREGUNTA nos interesa enfatizar en la urgencia, pertinencia y oportunidad de los datos cooperativos —datos ciudadanos— para contar con los DATOS QUE QUEREMOS.</p>
+ 
+    <p style="margin-bottom:.5rem;font-weight:600;color:var(--ink);font-size:15px;">Monitor Colectivo</p>
+    <p style="margin-bottom:.75rem;">Tu pregunta contribuye para crear la evidencia común del estado de los datos de género. En principio contrastando tu pregunta con dos bases de datos seleccionadas para Infra.Coop:</p>
+    <p style="margin-bottom:.4rem;padding-left:1rem;">a) Datasets de género regionales</p>
+    <p style="margin-bottom:1.25rem;padding-left:1rem;">b) Marcos de normativas vigentes a nivel global, regional y nacional. Criterios: normativas de datos, de tecnologías y de género.</p>
+    <p style="margin-bottom:1.25rem;">A medida que se sumen más preguntas, se irá visualizando la diferencia entre la brecha de datos existente (con los datos que tenemos y las normativas actuales) vs la brecha real.</p>
+ 
+    <p style="margin-bottom:.5rem;font-weight:600;color:var(--ink);font-size:15px;">Los datos que queremos</p>
+    <p style="margin-bottom:1.25rem;">En este apartado es donde el algoritmo cooperativo llega a su meta (al menos por ahora). La lupa está ahora puesta en la evolución entre los datos que tenemos y los datos que queremos.</p>
+ 
+    <p style="margin-bottom:.75rem;font-weight:600;color:var(--ink);font-size:15px;">¿Qué tenemos en proceso?</p>
+    <p style="margin-bottom:.75rem;">La Capa de Monitor es la primera prototipada. Hemos ideado para implementar a futuro las siguientes:</p>
+ 
+    <p style="margin-bottom:.4rem;color:var(--accent);font-weight:600;font-size:13px;font-family:var(--mono);letter-spacing:.04em;">* Capa federada de nodos</p>
+    <p style="margin-bottom:.4rem;padding-left:1rem;">Un foro y comunidad de aprendizaje cooperativo.</p>
+    <p style="margin-bottom:.4rem;padding-left:1rem;">Exploración de las intervenciones del modelo de gobernanza para la incidencia en distintos espacios territoriales y temáticos.</p>
+    <p style="margin-bottom:1.25rem;padding-left:1rem;">Aplicación de metodologías del Ciclo de Datos que queremos por temática y nodos.</p>
+ 
+    <p style="margin-bottom:.4rem;color:var(--accent);font-weight:600;font-size:13px;font-family:var(--mono);letter-spacing:.04em;">* Capa de datos cooperativos</p>
+    <p style="margin-bottom:.4rem;padding-left:1rem;">Espacio seguro y cuidado para archivar tus datos ciudadanos.</p>
+    <p style="margin-bottom:1.25rem;padding-left:1rem;">Este elemento contará con distintos niveles de acceso por roles y/o criterios de gobernanza del Protocolo.</p>
+ 
+    <p style="margin-bottom:1.25rem;color:var(--accent);font-weight:600;font-size:13px;font-family:var(--mono);letter-spacing:.04em;">* Protocolo de gobernanza de la Infra.Coop</p>
+ 
+    <p style="margin-bottom:.75rem;font-weight:600;color:var(--ink);font-size:14px;">Otras ideas que queremos trabajar a futuro con tu ayuda</p>
+    <p style="margin-bottom:.4rem;padding-left:1rem;">— Simulador de intervenciones en el ciclo de datos de tu elección (OSC)</p>
+    <p style="margin-bottom:.4rem;padding-left:1rem;">— Explorador de diagnósticos de incidencia para OSC, funcionarios públicos, organismos y activistas</p>
+    <p style="margin-bottom:.4rem;padding-left:1rem;">— Sistematizador de evidencia: útil para áreas de litigio estratégico</p>
+    <p style="margin-bottom:0;padding-left:1rem;">— Creación de cuenta en la plataforma</p>
+ 
+  </div>
+</div>
+ 
+<!-- MOTOR -->
+<div id="panel-motor" style="display:none;">
+  <div class="hero" style="text-align:center;">
+    <p class="hero-eyebrow">Monitoreo de brechas</p>
+    <h1 style="max-width:100%;">¿Qué datos nos <em style="color:var(--accent);font-style:italic;">faltan</em>?</h1>
+    <p class="hero-sub" style="margin:0 auto;">Escribí una pregunta sobre datos de género que te interese. El monitor busca qué datos existen, qué exige la normativa vigente y dónde está la brecha de datos teniendo en cuenta tu info.</p>
+    <div style="margin:1.5rem auto 0;max-width:520px;padding:.75rem 1rem;background:var(--paper-warm);border-left:3px solid var(--accent);border-radius:0 var(--r) var(--r) 0;text-align:left;">
+      <p style="font-size:11px;font-family:var(--mono);color:var(--accent);letter-spacing:.06em;text-transform:uppercase;font-weight:600;margin-bottom:5px;">* ¿Por qué te solicitamos una pregunta?</p>
+      <p style="font-size:12px;color:var(--ink-light);line-height:1.7;font-family:var(--sans);">El objetivo del monitor es poner en evidencia qué datos tenemos vs qué datos queremos. Para ello, DCL pone la lupa en la primera instancia de cualquier proceso de recolección de datos, el problema detrás de esos datos. En el ciclo de datos esa primera fase se llama <em style="color:var(--ink-mid);font-style:italic;">problematización</em> y es allí donde queremos incidir.</p>
+    </div>
+  </div>
+  <div class="question-block">
+    <label class="question-label" for="pregunta">Ingresá tu pregunta</label>
+    <textarea id="pregunta" rows="3" placeholder="ej: ¿Qué datos existen sobre causas de muerte materna por estado en México?" oninput="updateCharCount()" onkeydown="handleKeydown(event)"></textarea>
+    <div class="question-footer">
+      <span class="char-count" id="char-count">0 / 400 caracteres</span>
+      <div class="question-actions">
+        <button class="btn-ghost" onclick="clearAll()">Limpiar</button>
+        <button class="btn-primary" id="btn-buscar" onclick="buscarBrecha()">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="6" cy="6" r="4.5" stroke="currentColor" stroke-width="1.5"/><path d="M9.5 9.5L12 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          Analizar brecha
+        </button>
+      </div>
+    </div>
+  </div>
+  <div class="filters">
+    <span class="filter-label">Filtrar por:</span>
+    <select class="filter-select" id="filter-agenda" title="DGDF-UNDP · UN NQAF · CEPAL · Paris21 · Copenhague · MESECVI">
+      <option value="">Todas las agendas</option>
+      <option value="agenda-tecnologica">Agenda Tecnológica</option>
+      <option value="agenda-datos">Agenda de Datos</option>
+      <option value="agenda-genero">Agenda de Género</option>
+    </select>
+    <select class="filter-select" id="filter-pais">
+      <option value="">Todos los países</option>
+      <option value="MEX">México</option><option value="ARG">Argentina</option>
+      <option value="COL">Colombia</option><option value="CHL">Chile</option><option value="GTM">Guatemala</option>
+    </select>
+    <select class="filter-select" id="filter-calidad" title="HRBA to Data · UN NQAF · E/CN.3/2024/14 · Marco de Copenhague">
+      <option value="">Nivel de calidad</option>
+      <option value="completa">Completa</option>
+      <option value="parcial">Parcial</option>
+      <option value="nula">Nula</option>
+    </select>
+  </div>
+  <div class="loading-state" id="loading-state">
+    <div class="spinner"></div>
+    <div>
+      <div style="font-size:14px;color:var(--ink)">Analizando brecha de datos…</div>
+      <div class="loading-steps" id="loading-step">Buscando en índice vectorial</div>
+    </div>
+  </div>
+  <div class="results-section" id="results-section">
+    <div class="gap-score-card" id="score-card"></div>
+    <div class="result-section-title">Datasets disponibles</div>
+    <div class="dataset-grid" id="datasets-grid"></div>
+    <div class="result-section-title">Marcos normativos relevantes</div>
+    <div class="framework-list" id="frameworks-list"></div>
+ 
+    <!-- TERMÓMETRO DE INCIDENCIA -->
+    <div class="termometro-block">
+      <div class="termometro-header">
+        <div>
+          <div class="termometro-title">Termómetro de Incidencia</div>
+          <div class="termometro-sub">Elegí hacia dónde querés llevar esta brecha. El sistema genera una infografía de incidencia.</div>
+        </div>
+      </div>
+      <div class="termometro-opciones">
+        <button class="termometro-chip" onclick="seleccionarIncidencia('ogp',this)">Gobierno Abierto</button>
+        <button class="termometro-chip" onclick="seleccionarIncidencia('ddhh',this)">DDHH</button>
+        <button class="termometro-chip" onclick="seleccionarIncidencia('digital',this)">Cooperación Digital</button>
+        <button class="termometro-chip" onclick="seleccionarIncidencia('cooperativa',this)">Gobernanza Cooperativa</button>
+        <button class="termometro-chip todas" onclick="seleccionarIncidencia('todas',this)">Todas</button>
+      </div>
+      <button class="btn-incidencia" id="btn-generar-infografia" onclick="generarInfografia()" disabled>
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.4"/><path d="M4 7h6M4 4.5h6M4 9.5h4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+        Generar infografía de incidencia
+      </button>
+ 
+      <!-- Panel de infografía generada -->
+      <div class="infografia-panel" id="infografia-panel">
+        <div class="infografia-canvas" id="infografia-canvas">
+          <!-- se genera por JS -->
+        </div>
+        <div style="display:flex;gap:8px;margin-top:.75rem;flex-wrap:wrap;">
+          <button class="btn-descarga" onclick="descargarInfografia('jpg')">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v8M4 6l3 3 3-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M1 10v2a1 1 0 001 1h10a1 1 0 001-1v-2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+            Descargar JPG
+          </button>
+          <button class="btn-descarga" onclick="descargarInfografia('pdf')">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v8M4 6l3 3 3-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M1 10v2a1 1 0 001 1h10a1 1 0 001-1v-2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+            Descargar PDF
+          </button>
+        </div>
+      </div>
+    </div>
+ 
+    <!-- BAJA LA BRECHA -->
+    <div class="baja-brecha-block">
+      <div class="baja-brecha-header">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M9 2v10M5 8l4 4 4-4" stroke="var(--ink)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 14v1a1 1 0 001 1h12a1 1 0 001-1v-1" stroke="var(--ink)" stroke-width="1.5" stroke-linecap="round"/></svg>
+        <div class="baja-brecha-title">Baja la brecha</div>
+      </div>
+      <div class="baja-brecha-sub">Descargá el diagnóstico completo de esta brecha — score, datasets, marcos normativos y síntesis — en el formato que necesitás.</div>
+      <div class="baja-brecha-acciones">
+        <button class="btn-descarga" onclick="descargarDiagnostico('pdf')">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M8 1H3a1 1 0 00-1 1v10a1 1 0 001 1h8a1 1 0 001-1V5L8 1z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 1v4h4M5 7h4M5 9.5h4M5 4.5h2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+          Diagnóstico PDF
+        </button>
+        <button class="btn-descarga" onclick="descargarDiagnostico('jpg')">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.4"/><circle cx="4.5" cy="4.5" r="1" fill="currentColor"/><path d="M1 9l3-3 2.5 2.5L9 6l4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Diagnóstico JPG
+        </button>
+      </div>
+    </div>
+ 
+  </div>
+</div>
+ 
+<!-- MONITOR COLECTIVO -->
+<div id="panel-mapa" style="display:none;">
+  <div class="hero">
+    <p class="hero-eyebrow">Monitor Colectivo de Brechas</p>
+    <h1>Monitor <em>Colectivo</em> de Brechas</h1>
+    <p class="hero-sub">Cada pregunta ingresada contribuye al mapa común de brechas.</p>
+  </div>
+  <div class="result-section-title">Brechas por Agenda</div>
+  <div id="monitor-agendas-grid" class="monitor-grid-agendas"></div>
+  <div class="result-section-title">Brechas por Tópico</div>
+  <div class="mapa-grid" id="mapa-grid"></div>
+</div>
+ 
+<!-- CAPA 3: ¿QUÉ DATOS QUEREMOS? -->
+<div id="panel-capa3" style="display:none;">
+  <div class="evolucion-hero">
+    <p class="hero-eyebrow">¿Qué datos queremos?</p>
+    <h1>Evolución de <em>brechas</em></h1>
+    <p class="hero-sub">Estado inicial anclado versus evolución semanal según preguntas ingresadas. Seguimiento por Agenda.</p>
+  </div>
+ 
+  <!-- Contador de preguntas en tiempo real -->
+  <div style="display:flex;align-items:center;gap:12px;background:white;border:1px solid var(--ink-faint);border-radius:var(--r-lg);padding:.85rem 1.25rem;margin-bottom:1.5rem;flex-wrap:wrap;">
+    <div>
+      <div style="font-size:10px;font-family:var(--mono);color:var(--ink-light);letter-spacing:.08em;text-transform:uppercase;margin-bottom:3px;">Total preguntas ingresadas</div>
+      <div style="font-family:var(--serif);font-size:32px;line-height:1;color:var(--ink);" id="contador-total">0</div>
+    </div>
+    <div style="width:1px;height:36px;background:var(--ink-faint);flex-shrink:0;"></div>
+    <div style="font-size:12px;color:var(--ink-mid);max-width:400px;line-height:1.5;">
+      El contador se actualiza con cada pregunta ingresada al Motor de Brechas. En producción refleja el total histórico de la tabla <code style="font-family:var(--mono);font-size:11px;">questions</code>.
+    </div>
+  </div>
+ 
+  <!-- Tabs semanas - Estado inicial siempre anclado -->
+  <div style="display:flex;gap:8px;margin-bottom:1rem;align-items:center;flex-wrap:wrap;">
+    <div style="display:flex;align-items:center;gap:6px;background:var(--paper);border:1.5px solid var(--ink);border-radius:var(--r);padding:5px 12px;font-size:11px;font-family:var(--mono);color:var(--ink);font-weight:600;">
+      <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><rect x="1" y="1" width="8" height="8" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M3 5h4M3 3.5h4M3 6.5h2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+      Estado inicial — anclado
+    </div>
+    <span style="font-size:11px;color:var(--ink-light);font-family:var(--mono);">vs</span>
+    <div class="semana-tabs" id="semana-tabs" style="margin:0;">
+      <button class="semana-tab active" onclick="cambiarSemana(1,this)">Semana 1</button>
+      <button class="semana-tab" onclick="cambiarSemana(2,this)">Semana 2</button>
+      <button class="semana-tab" onclick="cambiarSemana(3,this)">Semana 3</button>
+      <button class="semana-tab" onclick="cambiarSemana(4,this)">Semana 4</button>
+    </div>
+  </div>
+ 
+  <!-- Layout comparativo: estado inicial fijo izq | semana seleccionada der -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:1.5rem;" id="comparativo-grid">
+    <!-- columna izquierda: estado inicial fijo -->
+    <div>
+      <div style="font-size:11px;font-family:var(--mono);color:var(--ink-light);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px;">Estado inicial</div>
+      <div id="metricas-inicial"></div>
+    </div>
+    <!-- columna derecha: semana seleccionada -->
+    <div>
+      <div style="font-size:11px;font-family:var(--mono);color:var(--ink-light);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px;" id="label-semana-actual">Semana 1</div>
+      <div id="metricas-semana"></div>
+    </div>
+  </div>
+ 
+  <div class="chart-wrap">
+    <div class="chart-title">Evolución semanal de brechas por agenda</div>
+    <div class="chart-inner"><div class="chart-bars" id="evolucion-chart"></div></div>
+    <div class="chart-legend">
+      <span><span class="chart-legend-dot" style="background:#0C447C"></span>Ag. Tecnológica</span>
+      <span><span class="chart-legend-dot" style="background:#3C3489"></span>Ag. de Datos</span>
+      <span><span class="chart-legend-dot" style="background:#72243E"></span>Ag. de Género</span>
+    </div>
+  </div>
+ 
+  <div class="result-section-title">Estado de brechas por agenda</div>
+  <div class="agenda-evolucion-section" id="agenda-evolucion-section"></div>
+ 
+  <div class="audit-note" style="display:none;">
+    <strong>Nota de implementación — Auditoría diaria:</strong> En la fase de producción, cada ingreso de pregunta al monitor dispara un INSERT en la tabla <code>audit_eventos</code> con timestamp, topic_id, agenda y score de brecha. Un cron job a las 00:05 UTC ejecuta <code>fn_generar_snapshot_diario()</code>, que agrega los datos por agenda y tópico y los guarda en <code>metricas_snapshot</code>. Esta tabla alimenta las vistas de evolución semanal y sirve de backup incremental de todas las interacciones. Ver <code>infracoop_metricas_backup.sql</code> para el esquema completo.
+  </div>
+</div>
+ 
+<!-- BACKEND -->
+<div id="panel-backend" style="display:none;">
+  <div class="backend-panel">
+    <div class="hero" style="margin-bottom:1.5rem;">
+      <p class="hero-eyebrow">Backend · Ingesta manual · v0.3</p>
+      <h1>Carga de <em>datos</em> al motor</h1>
+      <p class="hero-sub">Clasificación automática de calidad con flujo cooperativo de revisión. Solo accesible por el equipo de curación.</p>
+    </div>
+    <div class="backend-alert">Panel de uso interno. La clasificación automática es una <strong>sugerencia</strong> — siempre requiere confirmación del Revisor Principal. El desacuerdo escala a 3 Revisores Colectivos que deben alcanzar consenso unánime.</div>
+ 
+    <div style="display:flex;gap:4px;margin-bottom:1.5rem;flex-wrap:wrap;">
+      <button class="btn-ghost" id="tab-dataset-btn" onclick="switchTab('dataset')" style="font-size:12px;padding:6px 14px;">Dataset</button>
+      <button class="btn-ghost" id="tab-normativa-btn" onclick="switchTab('normativa')" style="font-size:12px;padding:6px 14px;">Normativa</button>
+      <button class="btn-ghost" id="tab-registros-btn" onclick="switchTab('registros')" style="font-size:12px;padding:6px 14px;">Registros cargados</button>
+    </div>
+ 
+    <!-- FORM DATASET -->
+    <div id="tab-dataset">
+      <div class="form-card">
+        <div class="form-row">
+          <div class="field"><label>Título del dataset</label><input type="text" id="ds-titulo" placeholder="ej: ENDIREH 2021 — Violencia contra mujeres"></div>
+          <div class="field"><label>Fuente / organismo</label><input type="text" id="ds-fuente" placeholder="ej: INEGI, ONU Mujeres, CEPAL"></div>
+        </div>
+        <div class="form-row three">
+          <div class="field"><label>País (ISO 3)</label>
+            <select id="ds-pais">
+              <option value="">Global</option><option value="MEX">México</option><option value="ARG">Argentina</option>
+              <option value="COL">Colombia</option><option value="CHL">Chile</option><option value="GTM">Guatemala</option>
+              <option value="PER">Perú</option><option value="BOL">Bolivia</option><option value="ECU">Ecuador</option>
+            </select>
+          </div>
+          <div class="field"><label>Año de publicación</label><input type="number" id="ds-anio" placeholder="2024" min="1990" max="2030"></div>
+          <div class="field"><label>Formato de descarga</label>
+            <select id="ds-formato">
+              <option value="">No especificado</option>
+              <option value="csv">CSV</option><option value="json">JSON</option><option value="xlsx">XLSX</option>
+              <option value="api">API abierta</option>
+              <option value="pdf-no-legible">PDF (no legible por máquina)</option>
+              <option value="sin-descarga">Sin descarga disponible</option>
+            </select>
+            <span class="field-hint">Afecta señal de accesibilidad (20%)</span>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="field"><label>¿Tiene metodología documentada?</label>
+            <select id="ds-metodologia">
+              <option value="si">Sí — metodología publicada</option>
+              <option value="parcial">Parcial — descripción breve</option>
+              <option value="no">No — sin documentación</option>
+            </select>
+          </div>
+          <div class="field"><label>¿Tiene distribución geográfica?</label>
+            <select id="ds-desagregacion">
+              <option value="geografica">Sí — distribución geográfica (municipio, región, territorio)</option>
+              <option value="nacional">Solo totales nacionales</option>
+              <option value="sin-dato">Sin información disponible</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="field"><label>Subtema</label><input type="text" id="ds-subtema" placeholder="ej: mortalidad materna, aborto legal, feminicidio"></div>
+          <div class="field"><label>URL de la fuente</label><input type="url" id="ds-url" placeholder="https://..."></div>
+        </div>
+        <div class="form-row full">
+          <div class="field"><label>Descripción</label><textarea id="ds-descripcion" placeholder="Descripción, cobertura, limitaciones conocidas..."></textarea></div>
+        </div>
+        <div class="form-row full">
+          <div class="field">
+            <label>Agendas (puede seleccionar más de una)</label>
+            <div class="agenda-checkboxes">
+              <label class="agenda-check"><input type="checkbox" value="agenda-tecnologica" name="ds-agenda"> Agenda Tecnológica</label>
+              <label class="agenda-check"><input type="checkbox" value="agenda-datos" name="ds-agenda"> Agenda de Datos</label>
+              <label class="agenda-check"><input type="checkbox" value="agenda-genero" name="ds-agenda"> Agenda de Género</label>
+            </div>
+            <span class="field-hint">Tecnológica: DGDF-UNDP · Datos: UN NQAF + CEPAL + Quality Assurance · Género: Paris21 + Copenhague + MESECVI</span>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="field"><label>Licencia</label>
+            <select id="ds-licencia">
+              <option value="">Sin especificar</option><option value="CC BY 4.0">CC BY 4.0</option>
+              <option value="CC BY-SA 4.0">CC BY-SA 4.0</option><option value="CC BY-NC 4.0">CC BY-NC 4.0</option>
+              <option value="uso-restringido">Uso restringido</option><option value="datos-abiertos-mx">Datos Abiertos MX</option>
+              <option value="dominio-publico">Dominio público</option>
+            </select>
+          </div>
+          <div class="field"><label>Nombre del Revisor Principal</label><input type="text" id="ds-revisor" placeholder="nombre de quien hace la revisión"></div>
+        </div>
+        <div class="form-actions">
+          <button class="btn-ghost" onclick="limpiarFormDataset()">Limpiar</button>
+          <button class="btn-primary" onclick="analizarDataset()">
+            <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><circle cx="6" cy="6" r="4.5" stroke="currentColor" stroke-width="1.3"/><path d="M6 4v2.5l1.5 1" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            Analizar calidad automáticamente
+          </button>
+        </div>
+      </div>
+ 
+      <!-- Panel de análisis -->
+      <div class="analisis-panel" id="analisis-panel">
+        <div class="analisis-header">
+          <span class="analisis-title">Análisis automático de calidad</span>
+          <span class="confianza-badge" id="confianza-badge">—</span>
+        </div>
+        <div class="senales-grid" id="senales-grid"></div>
+        <div class="sugerencia-final" id="sugerencia-final">
+          <div><div class="sugerencia-label">Calidad sugerida</div><div class="sugerencia-valor" id="sugerencia-valor">—</div></div>
+          <div style="margin-left:auto;font-size:12px;font-family:var(--mono);color:var(--ink-light);" id="score-detalle"></div>
+        </div>
+        <div class="revisor-section">
+          <div class="revisor-title">Revisor Principal · Fundamento de revisión</div>
+          <div class="form-row full" style="margin-bottom:.5rem;">
+            <div class="field">
+              <label>Fundamento (mínimo 20 caracteres — queda registrado en el historial de gobernanza)</label>
+              <textarea class="fundamento-area" id="fundamento-revisor" placeholder="Describí por qué confirmás, corregís o escalás esta clasificación..."></textarea>
+            </div>
+          </div>
+          <div class="revisor-actions">
+            <button class="btn-primary" onclick="analizarPostFundamento()" style="font-size:12px;padding:7px 14px;">
+              Analizar fundamento y ver opciones
+            </button>
+          </div>
+        </div>
+      </div>
+ 
+      <!-- Panel colectivo -->
+      <div class="colectivo-panel" id="colectivo-panel">
+        <div class="colectivo-header">
+          <span class="colectivo-title">Revisión de nodo colectivo — consenso unánime de 3</span>
+          <div class="consenso-bar">
+            <span>Votos:</span>
+            <div class="consenso-dot" id="dot-1"></div>
+            <div class="consenso-dot" id="dot-2"></div>
+            <div class="consenso-dot" id="dot-3"></div>
+          </div>
+        </div>
+        <div id="revisores-blocks"></div>
+        <div class="confirmacion-final" id="confirmacion-final">
+          <div style="font-size:13px;font-weight:600;color:var(--ink);margin-bottom:.5rem;">Consenso alcanzado — confirmación final del Revisor Principal</div>
+          <div style="font-size:13px;color:var(--ink-mid);margin-bottom:.75rem;">Los 3 Revisores Colectivos acordaron: <strong id="consenso-resultado"></strong>. El Revisor Principal confirma antes de publicar.</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <button class="btn-primary" onclick="publicarRegistro()">Confirmar y publicar</button>
+            <button class="btn-ghost" onclick="rechazarPublicacion()">Rechazar y archivar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+ 
+    <!-- FORM NORMATIVA -->
+    <div id="tab-normativa" style="display:none;">
+      <div class="form-card">
+        <div class="form-row">
+          <div class="field"><label>Nombre de la norma</label><input type="text" id="nm-nombre" placeholder="ej: NOM-046-SSA2-2005, CEDAW Art. 12"></div>
+          <div class="field"><label>Organismo emisor</label><input type="text" id="nm-organismo" placeholder="ej: Secretaría de Salud México, ONU/CEDAW"></div>
+        </div>
+        <div class="form-row three">
+          <div class="field"><label>Tipo</label>
+            <select id="nm-tipo">
+              <option value="norma_oficial">Norma oficial</option><option value="ley">Ley</option>
+              <option value="convenio">Convenio internacional</option><option value="ods">ODS / Meta</option>
+              <option value="recomendacion">Recomendación</option><option value="declaracion">Declaración</option>
+              <option value="plan_accion">Plan de acción OGP</option>
+            </select>
+          </div>
+          <div class="field"><label>País de aplicación</label>
+            <select id="nm-pais">
+              <option value="">Internacional</option><option value="MEX">México</option><option value="ARG">Argentina</option>
+              <option value="COL">Colombia</option><option value="CHL">Chile</option><option value="GTM">Guatemala</option><option value="PER">Perú</option>
+            </select>
+          </div>
+          <div class="field"><label>Artículo / numeral</label><input type="text" id="nm-articulo" placeholder="ej: Art. 6.3"></div>
+        </div>
+        <div class="form-row full">
+          <div class="field"><label>Obligación sobre los datos</label><textarea id="nm-obligacion" placeholder="¿Qué dato obliga a registrar, producir o publicar esta norma?"></textarea></div>
+        </div>
+        <div class="form-row full">
+          <div class="field"><label>Descripción adicional</label><textarea id="nm-descripcion" placeholder="Contexto, alcance, relación con otras normas..."></textarea></div>
+        </div>
+        <div class="form-row full">
+          <div class="field">
+            <label>Agendas (puede seleccionar más de una)</label>
+            <div class="agenda-checkboxes">
+              <label class="agenda-check"><input type="checkbox" value="agenda-tecnologica" name="nm-agenda"> Agenda Tecnológica</label>
+              <label class="agenda-check"><input type="checkbox" value="agenda-datos" name="nm-agenda"> Agenda de Datos</label>
+              <label class="agenda-check"><input type="checkbox" value="agenda-genero" name="nm-agenda"> Agenda de Género</label>
+            </div>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="field"><label>URL del texto oficial</label><input type="url" id="nm-url" placeholder="https://..."></div>
+          <div class="field"><label>Nombre del Revisor Principal</label><input type="text" id="nm-revisor" placeholder="nombre de quien revisa"></div>
+        </div>
+        <div class="form-actions">
+          <button class="btn-ghost" onclick="limpiarFormNormativa()">Limpiar</button>
+          <button class="btn-primary" onclick="guardarNormativa()">
+            <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2 6.5L5.5 10L11 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Guardar normativa
+          </button>
+        </div>
+      </div>
+    </div>
+ 
+    <!-- REGISTROS -->
+    <div id="tab-registros" style="display:none;">
+      <div style="display:flex;gap:8px;margin-bottom:1rem;align-items:center;flex-wrap:wrap;">
+        <span style="font-size:12px;color:var(--ink-light);font-family:var(--mono);" id="registros-count">0 registros en esta sesión</span>
+        <button class="btn-ghost" style="font-size:11px;padding:4px 10px;margin-left:auto;" onclick="exportarRegistros()">Exportar JSON ↗</button>
+      </div>
+      <div id="registros-container"><div class="empty-records">Aún no hay registros en esta sesión.</div></div>
+    </div>
+  </div>
+</div>
+ 
+</div><!-- /container -->
+ 
+<footer style="border-top:1px solid var(--ink-faint);padding:1.25rem 2rem;display:flex;align-items:center;justify-content:center;gap:6px;background:var(--paper);">
+  <span style="font-size:11px;font-family:var(--mono);color:var(--ink-light);letter-spacing:.04em;">Prototipo v0.3 desarrollado por</span>
+  <span style="font-size:11px;font-family:var(--mono);color:var(--accent);font-weight:600;letter-spacing:.04em;">Data Cooperativas Latinas</span>
+</footer>
+ 
+<!-- MODAL -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal-box">
+    <div class="modal-title" id="modal-title">Opciones de clasificación</div>
+    <div class="modal-sub" id="modal-sub"></div>
+    <div class="modal-analisis" id="modal-analisis"></div>
+    <div class="modal-actions" id="modal-actions"></div>
+  </div>
+</div>
+ 
+<div class="toast" id="toast"></div>
+ 
+<script>
+/* ══ MOCK DATA ══ */
+const DATOS_MOCK={
+  "aborto seguro municipios rurales":{score:0.82,categoria:"critica",titulo:"Brecha crítica en datos de aborto seguro en contextos rurales",sintesis:"Los datasets disponibles sobre interrupción legal del embarazo provienen principalmente de registros hospitalarios urbanos. No existen datasets desagregados a nivel municipal ni con variable de ruralidad.",datasets:[{titulo:"Registros de ILE — CDMX SEDESA",fuente:"SEDESA",pais:"MEX",anio:2023,calidad:"parcial",sim:0.74},{titulo:"Estadísticas de salud reproductiva DGIS",fuente:"SSA México",pais:"MEX",anio:2022,calidad:"nula",sim:0.61},{titulo:"Encuesta Nacional de la Dinámica Demográfica",fuente:"INEGI",pais:"MEX",anio:2023,calidad:"parcial",sim:0.55}],frameworks:[{nombre:"NOM-046-SSA2-2005",organismo:"Secretaría de Salud México",tipo:"norma_oficial",articulo:"Numeral 6.4",obligacion:"Las instituciones del Sistema Nacional de Salud deben registrar y reportar casos de violencia sexual con desagregación territorial.",sim:0.88},{nombre:"Ley General de Salud — Art. 68",organismo:"Congreso de la Unión",tipo:"ley",articulo:"Artículo 68",obligacion:"Los servicios de planificación familiar deben generar estadísticas desagregadas accesibles al público.",sim:0.71}]},
+  "ausencias personas gestantes":{score:0.91,categoria:"critica",titulo:"Dato inexistente: abandono de atención prenatal en contexto territorial",sintesis:"No existen datasets públicos sobre motivos ni frecuencia de ausencias de personas gestantes a citas de atención primaria.",datasets:[{titulo:"Sistema de Información en Salud (HIS)",fuente:"SSA México",pais:"MEX",anio:2023,calidad:"parcial",sim:0.52},{titulo:"Indicadores de salud materna CEPAL",fuente:"CEPAL",pais:null,anio:2023,calidad:"completa",sim:0.44}],frameworks:[{nombre:"NOM-007-SSA2-2016",organismo:"Secretaría de Salud México",tipo:"norma_oficial",articulo:"Numeral 5.2",obligacion:"La atención prenatal debe garantizarse con un mínimo de cinco consultas y registrar la continuidad del seguimiento.",sim:0.83},{nombre:"ODS 3.1 — Mortalidad materna",organismo:"Naciones Unidas",tipo:"ods",articulo:"Meta 3.1",obligacion:"Los Estados deben producir datos de mortalidad materna desagregados por causas directas e indirectas.",sim:0.68}]},
+  "nom 046":{score:0.63,categoria:"parcial",titulo:"Brecha parcial: registro de NOM-046 vs implementación verificable",sintesis:"Existen datasets sobre atención a violencia sexual pero la comparación con lo que exige la NOM-046 muestra brechas en desagregación.",datasets:[{titulo:"ENDIREH 2021 — Violencia contra mujeres",fuente:"INEGI",pais:"MEX",anio:2021,calidad:"completa",sim:0.79},{titulo:"Estadísticas sobre violencia DGIS",fuente:"SSA México",pais:"MEX",anio:2022,calidad:"parcial",sim:0.71},{titulo:"Registro de servicios IMSS — violencia",fuente:"IMSS",pais:"MEX",anio:2023,calidad:"parcial",sim:0.58}],frameworks:[{nombre:"NOM-046-SSA2-2005",organismo:"Secretaría de Salud México",tipo:"norma_oficial",articulo:"Numeral 7.1",obligacion:"Las instituciones deben llevar un registro de los casos de violencia familiar, sexual y contra las mujeres atendidos.",sim:0.92}]},
+  "servicios salud barrio":{score:0.88,categoria:"critica",titulo:"Geolocalización de servicios de salud reproductiva: dato crítico ausente",sintesis:"No existen datasets públicos actualizados con geolocalización y capacidad real de servicios de salud reproductiva a nivel de colonia o barrio.",datasets:[{titulo:"Catálogo de Claves CLUES",fuente:"DGIS SSA",pais:"MEX",anio:2024,calidad:"parcial",sim:0.66},{titulo:"Datos abiertos CDMX — Hospitales",fuente:"GOBIERNO CDMX",pais:"MEX",anio:2023,calidad:"parcial",sim:0.59}],frameworks:[{nombre:"Ley de Salud CDMX — Art. 9",organismo:"Asamblea Legislativa CDMX",tipo:"ley",articulo:"Artículo 9",obligacion:"El gobierno debe garantizar el acceso territorial equitativo a servicios de salud reproductiva y publicar datos de cobertura.",sim:0.77},{nombre:"CEDAW — Recomendación 24",organismo:"ONU / CEDAW",tipo:"convenio",articulo:"Rec. General 24",obligacion:"Los Estados deben asegurar que las mujeres tengan acceso geográfico a servicios de salud.",sim:0.69}]},
+  "feminicidio estados":{score:0.55,categoria:"parcial",titulo:"Datos de feminicidio comparables entre estados: brecha metodológica",sintesis:"Existen múltiples fuentes sobre feminicidio pero su comparabilidad es limitada por diferencias en tipificación del delito entre estados.",datasets:[{titulo:"Información sobre Violencia contra Mujeres SESNSP",fuente:"SESNSP",pais:"MEX",anio:2024,calidad:"completa",sim:0.85},{titulo:"ENVIPE — Percepción de seguridad",fuente:"INEGI",pais:"MEX",anio:2023,calidad:"completa",sim:0.62},{titulo:"Estadísticas de mortalidad INEGI",fuente:"INEGI",pais:"MEX",anio:2022,calidad:"completa",sim:0.58}],frameworks:[{nombre:"Ley General de Acceso — Art. 21",organismo:"Congreso de la Unión",tipo:"ley",articulo:"Artículo 21 Bis",obligacion:"El SNIEG debe producir y publicar estadísticas de feminicidio con criterios homologados entre entidades federativas.",sim:0.81},{nombre:"Declaratoria Alerta de Violencia de Género",organismo:"SEGOB México",tipo:"recomendacion",articulo:"Decreto 2015",obligacion:"Los estados con alerta deben publicar datos desglosados de feminicidio con periodicidad mensual.",sim:0.73}]}
+};
+const MAPA_MOCK=[{topic:"Salud reproductiva",total:48,score:0.79,criticas:31,parciales:12,cubiertas:5},{topic:"Violencia de género",total:35,score:0.65,criticas:19,parciales:14,cubiertas:2},{topic:"Justicia y litigios",total:22,score:0.71,criticas:14,parciales:7,cubiertas:1},{topic:"Interseccionalidad",total:18,score:0.83,criticas:15,parciales:3,cubiertas:0},{topic:"Tecnologías y datos",total:11,score:0.58,criticas:5,parciales:6,cubiertas:0}];
+ 
+const CALIDAD_DISPLAY={completa:'Completa',parcial:'Parcial',nula:'Nula',completo:'Completa',desactualizado:'Parcial',desconocida:'Nula'};
+const AGENDA_LABELS={'agenda-tecnologica':'Ag. Tecnológica','agenda-datos':'Ag. de Datos','agenda-genero':'Ag. de Género'};
+ 
+let registrosDB={datasets:[],normativas:[]};
+let analisisActual=null;
+let registroPendiente=null;
+let loadingInterval=null;
+let revisoresColectivos=[{id:1,estado:'pendiente',calidad:null,razon:''},{id:2,estado:'pendiente',calidad:null,razon:''},{id:3,estado:'pendiente',calidad:null,razon:''}];
+ 
+/* ══ MOTOR ══ */
+function updateCharCount(){const n=document.getElementById('pregunta').value.length;document.getElementById('char-count').textContent=`${n} / 400 caracteres`;document.getElementById('btn-buscar').disabled=n<5;}
+function handleKeydown(e){if(e.key==='Enter'&&(e.metaKey||e.ctrlKey))buscarBrecha();}
+function clearAll(){document.getElementById('pregunta').value='';updateCharCount();document.getElementById('results-section').classList.remove('visible');document.getElementById('loading-state').classList.remove('visible');}
+ 
+function showPanel(p){
+  ['about','motor','mapa','capa3','backend'].forEach(id=>{
+    const el=document.getElementById('panel-'+id);if(el)el.style.display=id===p?'':'none';
+  });
+  document.querySelectorAll('.nav-pill').forEach((b,i)=>b.classList.toggle('active',
+    (p==='about'&&i===0)||(p==='motor'&&i===1)||(p==='mapa'&&i===2)||(p==='capa3'&&i===3)||(p==='backend'&&i===4)
+  ));
+  if(p==='mapa')renderMapa();
+  if(p==='capa3')renderCapa3(1);
+  if(p==='backend')switchTab('dataset');
+}
+ 
+/* ══ EDITOR ABOUT ══ */
+let aboutTexto=`Infra.Coop es la dimensión tecnosocial de Data Cooperativas Latinas. Es una infraestructura digital inclusiva basada en los conceptos y modelo de gobernanza de datos cooperativos que encontrarás en el sitio.
+ 
+Monitor de Brechas
+El propósito es evidenciar el rol que juegan las preguntas —la fase de problema— al momento de iniciar un proceso de recolección de datos. Qué nos preguntemos, cómo y para quién incide en qué datos se definen recolectar. Esto mismo sucede cuando una Oficina Nacional de Estadísticas o un área de gobierno se propone diseñar un proyecto de datos.
+ 
+Con la PREGUNTA nos interesa enfatizar en la urgencia, pertinencia y oportunidad de los datos cooperativos —datos ciudadanos— para contar con los DATOS QUE QUEREMOS.
+ 
+Monitor Colectivo
+Tu pregunta contribuye para crear la evidencia común del estado de los datos de género. En principio contrastando tu pregunta con dos bases de datos seleccionadas para Infra.Coop:
+a) Datasets de género regionales
+b) Marcos de normativas vigentes a nivel global, regional y nacional. Criterios: normativas de datos, de tecnologías y de género.
+ 
+A medida que se sumen más preguntas, se irá visualizando la diferencia entre la brecha de datos existente (con los datos que tenemos y las normativas actuales) vs la brecha real.
+ 
+Los datos que queremos
+En este apartado es donde el algoritmo cooperativo llega a su meta (al menos por ahora). La lupa está ahora puesta en la evolución entre los datos que tenemos y los datos que queremos.
+ 
+¿Qué tenemos en proceso?
+La Capa de Monitor es la primera prototipada. Hemos ideado para implementar a futuro las siguientes:
+ 
+* Capa federada de nodos: un foro y comunidad de aprendizaje cooperativo. Exploración de las intervenciones del modelo de gobernanza para la incidencia en distintos espacios territoriales y temáticos. Aplicación de metodologías del Ciclo de Datos que queremos por temática y nodos.
+ 
+* Capa de datos cooperativos: espacio seguro y cuidado para archivar tus datos ciudadanos. Este elemento contará con distintos niveles de acceso por roles y/o criterios de gobernanza del Protocolo.
+ 
+* Protocolo de gobernanza de la Infra.Coop
+ 
+Otras ideas que queremos trabajar a futuro con tu ayuda
+— Simulador de intervenciones en el ciclo de datos de tu elección (OSC)
+— Explorador de diagnósticos de incidencia para OSC, funcionarios públicos, organismos y activistas
+— Sistematizador de evidencia: útil para áreas de litigio estratégico
+— Creación de cuenta en la plataforma`;
+ 
+function toggleEdicion(){
+  const ta=document.getElementById('about-textarea');
+  ta.value=aboutTexto||document.getElementById('about-lectura').innerText.trim();
+  document.getElementById('about-lectura').style.display='none';
+  document.getElementById('about-edicion').style.display='block';
+  ta.focus();
+}
+ 
+function cancelarEdicion(){
+  document.getElementById('about-lectura').style.display='block';
+  document.getElementById('about-edicion').style.display='none';
+}
+ 
+function guardarTexto(){
+  const val=document.getElementById('about-textarea').value.trim();
+  if(!val){showToast('Escribí algo antes de guardar');return;}
+  aboutTexto=val;
+  // Renderizar con saltos de párrafo
+  const html=val.split('\n\n').filter(Boolean).map(p=>`<p style="margin-bottom:1rem;color:var(--ink);font-size:15px;line-height:1.8;">${p.replace(/\n/g,'<br>')}</p>`).join('');
+  document.getElementById('about-lectura').innerHTML=html||'<p style="color:var(--ink-mid);">Sin contenido.</p>';
+  cancelarEdicion();
+  showToast('Texto guardado');
+}
+ 
+function copiarTexto(){
+  const txt=aboutTexto||document.getElementById('about-lectura').innerText;
+  if(!txt.trim()){showToast('No hay texto para copiar');return;}
+  navigator.clipboard.writeText(txt).then(()=>showToast('Texto copiado al portapapeles')).catch(()=>showToast('No se pudo copiar automáticamente'));
+}
+ 
+function matchQuery(q){
+  q=q.toLowerCase();
+  if(q.includes('abort')||q.includes('rural'))return DATOS_MOCK["aborto seguro municipios rurales"];
+  if(q.includes('ausencia')||q.includes('gestante')||q.includes('prenatal'))return DATOS_MOCK["ausencias personas gestantes"];
+  if(q.includes('nom')||q.includes('046'))return DATOS_MOCK["nom 046"];
+  if(q.includes('barrio')||q.includes('colonia')||q.includes('servicio')||q.includes('zona'))return DATOS_MOCK["servicios salud barrio"];
+  if(q.includes('feminicidio')||q.includes('estado'))return DATOS_MOCK["feminicidio estados"];
+  const keys=Object.keys(DATOS_MOCK);return DATOS_MOCK[keys[Math.floor(Math.random()*keys.length)]];
+}
+ 
+async function buscarBrecha(){
+  const pregunta=document.getElementById('pregunta').value.trim();
+  if(pregunta.length<5)return;
+  document.getElementById('results-section').classList.remove('visible');
+  document.getElementById('loading-state').classList.add('visible');
+  document.getElementById('btn-buscar').disabled=true;
+  const steps=['Generando embedding…','Buscando en datasets (pgvector)…','Buscando en frameworks…','Calculando score de brecha…','Generando síntesis con LLM…','Registrando pregunta anonimizada…'];
+  let si=0;loadingInterval=setInterval(()=>{document.getElementById('loading-step').textContent=steps[Math.min(si++,steps.length-1)];},400);
+  await new Promise(r=>setTimeout(r,2600));
+  clearInterval(loadingInterval);document.getElementById('loading-state').classList.remove('visible');document.getElementById('btn-buscar').disabled=false;
+  incrementarContador();
+  renderResults(matchQuery(pregunta));
+}
+ 
+function renderResults(data){
+  resultadoActual=data;
+  incidenciaSeleccionada=null;
+  document.querySelectorAll('.termometro-chip').forEach(c=>c.classList.remove('selected'));
+  document.getElementById('btn-generar-infografia').disabled=true;
+  document.getElementById('infografia-panel').classList.remove('visible');
+  const pct=Math.round(data.score*100);
+ 
+  // Scores por agenda (mock derivado del score total con variación por tipo)
+  const agendaScores={
+    tecnologica: Math.min(100, Math.round(pct * (0.75 + Math.random()*0.35))),
+    datos:        Math.min(100, Math.round(pct * (0.80 + Math.random()*0.30))),
+    genero:       Math.min(100, Math.round(pct * (0.90 + Math.random()*0.20)))
+  };
+ 
+  // Color del score total según categoría
+  const scoreColor={critica:'var(--gap-crit)',parcial:'var(--gap-part)',cubierta:'var(--gap-cov)'}[data.categoria];
+ 
+  // SVG iconos por agenda
+  const iconTec=`<svg viewBox="0 0 11 11" fill="none" stroke="#0C447C" stroke-width="1.4" stroke-linecap="round"><rect x="1" y="2" width="9" height="6" rx="1"/><path d="M4 8v1.5M7 8v1.5M3 9.5h5"/></svg>`;
+  const iconDat=`<svg viewBox="0 0 11 11" fill="none" stroke="#3C3489" stroke-width="1.4" stroke-linecap="round"><ellipse cx="5.5" cy="3" rx="3.5" ry="1.5"/><path d="M2 3v2.5c0 .83 1.57 1.5 3.5 1.5s3.5-.67 3.5-1.5V3"/><path d="M2 5.5V8c0 .83 1.57 1.5 3.5 1.5S9 8.83 9 8V5.5"/></svg>`;
+  const iconGen=`<svg viewBox="0 0 11 11" fill="none" stroke="#72243E" stroke-width="1.4" stroke-linecap="round"><circle cx="5.5" cy="4.5" r="3"/><path d="M5.5 7.5V10M4 9h3"/></svg>`;
+ 
+  document.getElementById('score-card').innerHTML=`
+    <div class="score-total-block">
+      <div class="score-total-num" style="color:${scoreColor}">${pct}</div>
+      <div class="score-total-label">score brecha</div>
+      <span class="gap-category-badge ${data.categoria}">${data.categoria}</span>
+    </div>
+    <div class="gap-info">
+      <h3>${data.titulo}</h3>
+      <p class="gap-synthesis">${data.sintesis}</p>
+      <div class="score-bar-wrap">
+        <div class="score-bar-track"><div class="score-bar-fill ${data.categoria}" id="score-fill" style="width:0%"></div></div>
+      </div>
+      <div class="agenda-scores">
+        <div class="agenda-score-pill tecnologica">
+          <div class="agenda-score-icon">${iconTec}</div>
+          <span class="agenda-score-label">Tecnológica</span>
+          <span class="agenda-score-val">${agendaScores.tecnologica}</span>
+        </div>
+        <div class="agenda-score-pill datos">
+          <div class="agenda-score-icon">${iconDat}</div>
+          <span class="agenda-score-label">Datos</span>
+          <span class="agenda-score-val">${agendaScores.datos}</span>
+        </div>
+        <div class="agenda-score-pill genero">
+          <div class="agenda-score-icon">${iconGen}</div>
+          <span class="agenda-score-label">Género</span>
+          <span class="agenda-score-val">${agendaScores.genero}</span>
+        </div>
+      </div>
+      <div class="gap-meta" style="margin-top:10px;">
+        <span>${data.datasets.length} datasets</span>
+        <span>${data.frameworks.length} normas</span>
+        <span>gpt-4o-mini</span>
+      </div>
+    </div>`;
+ 
+  setTimeout(()=>{const f=document.getElementById('score-fill');if(f)f.style.width=pct+'%';},100);
+ 
+  document.getElementById('datasets-grid').innerHTML=data.datasets.map(d=>`
+    <div class="dataset-card"><div class="dataset-card-header"><span class="dataset-card-title">${d.titulo}</span><span class="quality-badge ${d.calidad}">${CALIDAD_DISPLAY[d.calidad]||d.calidad}</span></div>
+    <div class="dataset-card-meta"><span>${d.fuente}</span><span>${d.pais||'Global'}</span>${d.anio?`<span>${d.anio}</span>`:''}</div>
+    <div class="dataset-sim"><span>similitud</span><div class="sim-bar"><div class="sim-bar-fill" style="width:${Math.round(d.sim*100)}%"></div></div><span>${Math.round(d.sim*100)}%</span></div></div>`).join('');
+ 
+  document.getElementById('frameworks-list').innerHTML=data.frameworks.map(f=>`
+    <div class="framework-card"><div class="framework-card-header"><span class="framework-nombre">${f.nombre}</span><span class="framework-tipo">${f.tipo.replace('_',' ')}</span></div>
+    <p class="framework-obligacion">${f.obligacion}</p>
+    <div class="framework-meta"><span>${f.organismo}</span>${f.articulo?`<span>${f.articulo}</span>`:''}<span>sim ${Math.round(f.sim*100)}%</span></div></div>`).join('');
+ 
+  document.getElementById('results-section').classList.add('visible');
+  document.getElementById('results-section').scrollIntoView({behavior:'smooth',block:'start'});
+}
+ 
+/* ══ DATOS MOCK MONITOR COLECTIVO ══ */
+const AGENDA_MONITOR_MOCK=[
+  {
+    id:'tecnologica', label:'Agenda Tecnológica',
+    color:'#0C447C', colorBg:'#E6F1FB', barColor:'#378ADD',
+    total:34, preguntas_semana:8,
+    topicos:[
+      {nombre:'Brecha digital',count:14},{nombre:'IA y sesgos',count:11},{nombre:'Acceso a internet',count:9}
+    ]
+  },
+  {
+    id:'datos', label:'Agenda de Datos',
+    color:'#3C3489', colorBg:'#EEEDFE', barColor:'#7F77DD',
+    total:51, preguntas_semana:13,
+    topicos:[
+      {nombre:'Calidad estadística',count:19},{nombre:'Datos abiertos',count:18},{nombre:'Marcos normativos',count:14}
+    ]
+  },
+  {
+    id:'genero', label:'Agenda de Género',
+    color:'#72243E', colorBg:'#FBEAF0', barColor:'#D4537E',
+    total:81, preguntas_semana:21,
+    topicos:[
+      {nombre:'Salud reproductiva',count:31},{nombre:'Violencia de género',count:27},{nombre:'Justicia y litigios',count:23}
+    ]
+  }
+];
+ 
+function renderMapa(){
+  // Cards por agenda
+  const agGrid=document.getElementById('monitor-agendas-grid');
+  if(agGrid){
+    agGrid.innerHTML=AGENDA_MONITOR_MOCK.map(ag=>{
+      const maxT=Math.max(...ag.topicos.map(t=>t.count));
+      return`<div class="agenda-monitor-card" style="border-top:3px solid ${ag.barColor}">
+        <div class="agenda-monitor-eyebrow" style="color:${ag.color}">${ag.label}</div>
+        <div class="agenda-monitor-total" style="color:${ag.color}">${ag.total}</div>
+        <div class="agenda-monitor-label">preguntas · +${ag.preguntas_semana} esta semana</div>
+        <div class="agenda-topic-list">
+          ${ag.topicos.map(t=>`
+            <div class="agenda-topic-row">
+              <span class="agenda-topic-name">${t.nombre}</span>
+              <div class="agenda-topic-bar-wrap"><div class="agenda-topic-bar-fill" style="width:${Math.round(t.count/maxT*100)}%;background:${ag.barColor}"></div></div>
+              <span class="agenda-topic-count">${t.count}</span>
+            </div>`).join('')}
+        </div>
+      </div>`;
+    }).join('');
+  }
+ 
+  // Grid de tópicos (mapa original)
+  const maxTotal=Math.max(...MAPA_MOCK.map(m=>m.total));
+  document.getElementById('mapa-grid').innerHTML=MAPA_MOCK.map(m=>{
+    const cat=m.score>=0.75?'critica':m.score>=0.5?'parcial':'cubierta';
+    const colors={critica:'var(--gap-crit)',parcial:'var(--gap-part)',cubierta:'var(--gap-cov)'};
+    return`<div class="mapa-card"><div class="mapa-card-topic">${m.topic}</div>
+    <div class="mapa-card-count" style="color:${colors[cat]}">${m.total}</div>
+    <div class="mapa-card-label">preguntas sin respuesta completa</div>
+    <div class="mapa-mini-bar"><div class="mapa-mini-fill" style="width:${Math.round(m.total/maxTotal*100)}%;background:${colors[cat]}"></div></div>
+    <div style="display:flex;gap:8px;margin-top:8px;font-size:11px;font-family:var(--mono);color:var(--ink-light);">
+      <span style="color:var(--gap-crit)">${m.criticas} críticas</span>
+      <span style="color:var(--gap-part)">${m.parciales} parciales</span>
+      <span style="color:var(--gap-cov)">${m.cubiertas} cubiertas</span>
+    </div></div>`;}).join('');
+}
+ 
+/* ══ CAPA 3: ¿QUÉ DATOS QUEREMOS? ══ */
+ 
+// Datos de evolución semanal mock
+// Semana 0 = estado inicial (sin preguntas). Semanas 1-4 acumulan.
+const EVOLUCION_MOCK=[
+  // semana 0: estado base sin preguntas ingresadas
+  {semana:0,label:'Estado inicial',total_preguntas:0,brechas_criticas:42,brechas_parciales:28,brechas_cubiertas:8,
+   agendas:{tecnologica:{score:68,criticas:12,nuevas:0},datos:{score:71,criticas:17,nuevas:0},genero:{score:79,criticas:13,nuevas:0}}},
+  {semana:1,label:'Semana 1',total_preguntas:18,brechas_criticas:47,brechas_parciales:31,brechas_cubiertas:8,
+   agendas:{tecnologica:{score:70,criticas:14,nuevas:8},datos:{score:73,criticas:19,nuevas:13},genero:{score:81,criticas:14,nuevas:21}}},
+  {semana:2,label:'Semana 2',total_preguntas:39,brechas_criticas:54,brechas_parciales:35,brechas_cubiertas:9,
+   agendas:{tecnologica:{score:72,criticas:16,nuevas:12},datos:{score:75,criticas:22,nuevas:19},genero:{score:83,criticas:16,nuevas:34}}},
+  {semana:3,label:'Semana 3',total_preguntas:62,brechas_criticas:61,brechas_parciales:38,brechas_cubiertas:10,
+   agendas:{tecnologica:{score:69,criticas:18,nuevas:20},datos:{score:74,criticas:24,nuevas:28},genero:{score:85,criticas:19,nuevas:42}}},
+  {semana:4,label:'Semana 4',total_preguntas:90,brechas_criticas:71,brechas_parciales:44,brechas_cubiertas:11,
+   agendas:{tecnologica:{score:71,criticas:21,nuevas:34},datos:{score:76,criticas:28,nuevas:51},genero:{score:87,criticas:22,nuevas:81}}}
+];
+ 
+let semanaActual=0;
+ 
+let contadorPreguntas=0;
+ 
+function incrementarContador(){
+  contadorPreguntas++;
+  const el=document.getElementById('contador-total');
+  if(el)el.textContent=contadorPreguntas;
+}
+ 
+function cambiarSemana(idx,btn){
+  semanaActual=idx;
+  document.querySelectorAll('.semana-tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  const lbl=document.getElementById('label-semana-actual');
+  if(lbl)lbl.textContent='Semana '+idx;
+  renderCapa3(idx);
+}
+ 
+function tarjetaMetrica(eyebrow,num,numColor,delta,deltaClass){
+  return`<div class="evolucion-card" style="margin-bottom:8px;">
+    <div class="evolucion-card-eyebrow">${eyebrow}</div>
+    <div class="evolucion-card-num" style="color:${numColor}">${num}</div>
+    <div class="evolucion-card-delta ${deltaClass}">${delta}</div>
+  </div>`;
+}
+ 
+function renderCapa3(idx){
+  const d=EVOLUCION_MOCK[idx];
+  const d0=EVOLUCION_MOCK[0];
+ 
+  // Columna izquierda: estado inicial siempre anclado
+  const inicialHTML=
+    tarjetaMetrica('Preguntas ingresadas','0','var(--ink)','Base — sin preguntas','delta-neu')+
+    tarjetaMetrica('Brechas críticas',d0.brechas_criticas,'var(--gap-crit)','Estado base','delta-neu')+
+    tarjetaMetrica('Brechas parciales',d0.brechas_parciales,'var(--gap-part)',d0.brechas_cubiertas+' cubiertas','delta-neu');
+  const mInicial=document.getElementById('metricas-inicial');
+  if(mInicial)mInicial.innerHTML=inicialHTML;
+ 
+  // Columna derecha: semana seleccionada
+  const deltaC=d.brechas_criticas-d0.brechas_criticas;
+  const semanaHTML=
+    tarjetaMetrica('Preguntas ingresadas',d.total_preguntas,'var(--ink)','+'+d.total_preguntas+' desde inicio','delta-pos')+
+    tarjetaMetrica('Brechas críticas',d.brechas_criticas,'var(--gap-crit)','+'+deltaC+' nuevas detectadas',deltaC>0?'delta-pos':'delta-neu')+
+    tarjetaMetrica('Brechas parciales',d.brechas_parciales,'var(--gap-part)',d.brechas_cubiertas+' cubiertas','delta-neu');
+  const mSemana=document.getElementById('metricas-semana');
+  if(mSemana)mSemana.innerHTML=semanaHTML;
+ 
+  // Gráfico barras — estado inicial siempre opaco, semanas anteriores semitransparentes
+  const agendaColors={tecnologica:'#378ADD',datos:'#7F77DD',genero:'#D4537E'};
+  document.getElementById('evolucion-chart').innerHTML=EVOLUCION_MOCK.map((sem,i)=>{
+    const esInicial=i===0;
+    const esActual=i===idx;
+    const opacity=esInicial||esActual?1:i<idx?0.4:0.15;
+    const border=esInicial?'border:2px solid var(--ink-faint);':esActual?'outline:2px solid var(--ink);outline-offset:2px;':'';
+    return`<div class="chart-bar-group" style="opacity:${opacity}">
+      <div class="chart-bar" style="height:${sem.agendas.tecnologica.score}%;background:${agendaColors.tecnologica}" title="Tec ${sem.agendas.tecnologica.score}%"></div>
+      <div class="chart-bar" style="height:${sem.agendas.datos.score}%;background:${agendaColors.datos}" title="Datos ${sem.agendas.datos.score}%"></div>
+      <div class="chart-bar" style="height:${sem.agendas.genero.score}%;background:${agendaColors.genero}" title="Género ${sem.agendas.genero.score}%"></div>
+      <div class="chart-bar-label" style="font-weight:${esInicial||esActual?'600':'400'}">${esInicial?'Inicial':sem.label.replace('Semana ','S')}</div>
+    </div>`;
+  }).join('');
+ 
+  // Cards por agenda
+  const agNames={tecnologica:'Agenda Tecnológica',datos:'Agenda de Datos',genero:'Agenda de Género'};
+  const agColors={tecnologica:{color:'#0C447C',bg:'#E6F1FB',bar:'#378ADD'},datos:{color:'#3C3489',bg:'#EEEDFE',bar:'#7F77DD'},genero:{color:'#72243E',bg:'#FBEAF0',bar:'#D4537E'}};
+  document.getElementById('agenda-evolucion-section').innerHTML=Object.keys(agNames).map(ag=>{
+    const cfg=agColors[ag];
+    const score=d.agendas[ag].score;
+    const score0=d0.agendas[ag].score;
+    const delta=score-score0;
+    const criticas=d.agendas[ag].criticas;
+    const nuevas=d.agendas[ag].nuevas;
+    const semBadges=EVOLUCION_MOCK.slice(0,idx+1).map((sem,i)=>`
+      <span class="semana-badge" style="background:${i===idx?cfg.bar:i===0?'var(--ink)':'var(--ink-faint)'};color:${i===idx||i===0?'white':'var(--ink-light)'}">
+        ${i===0?'Base':i===idx?sem.agendas[ag].score+'%':sem.agendas[ag].score}
+      </span>`).join('');
+    return`<div class="agenda-evol-card" style="border-left:3px solid ${cfg.bar}">
+      <div class="agenda-evol-header">
+        <div>
+          <div class="agenda-evol-title" style="color:${cfg.color}">${agNames[ag]}</div>
+          <div style="font-size:12px;color:var(--ink-mid);margin-top:2px;">Score brecha: <strong>${score}/100</strong>
+            ${delta!==0?`<span style="font-size:11px;font-family:var(--mono);color:${delta>0?'var(--gap-crit)':'var(--ok)'}"> (${delta>0?'+':''}${delta} vs estado inicial)</span>`:''}
+          </div>
+        </div>
+        <div class="agenda-evol-badges">${semBadges}</div>
+      </div>
+      <div style="display:flex;gap:1rem;flex-wrap:wrap;font-size:12px;color:var(--ink-mid);margin-bottom:.75rem;">
+        <span>Brechas críticas: <strong style="color:var(--gap-crit)">${criticas}</strong></span>
+        <span>Preguntas nuevas: <strong style="color:${cfg.color}">${nuevas}</strong></span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+        <div>
+          <div style="font-size:10px;font-family:var(--mono);color:var(--ink-light);margin-bottom:3px;">Estado inicial</div>
+          <div style="height:6px;background:var(--ink-faint);border-radius:3px;overflow:hidden;">
+            <div style="height:100%;width:${score0}%;background:var(--ink-mid);border-radius:3px;opacity:.4"></div>
+          </div>
+          <div style="font-size:10px;font-family:var(--mono);color:var(--ink-light);margin-top:2px;">${score0}%</div>
+        </div>
+        <div>
+          <div style="font-size:10px;font-family:var(--mono);color:${cfg.color};margin-bottom:3px;">Semana ${idx}</div>
+          <div style="height:6px;background:var(--ink-faint);border-radius:3px;overflow:hidden;">
+            <div style="height:100%;width:${score}%;background:${cfg.bar};border-radius:3px;transition:width .8s ease"></div>
+          </div>
+          <div style="font-size:10px;font-family:var(--mono);color:${cfg.color};margin-top:2px;">${score}%</div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+ 
+function exportarBrecha(){showToast('Brecha exportada como JSON para incidencia OGP');}
+ 
+/* ══ TERMÓMETRO DE INCIDENCIA ══ */
+let incidenciaSeleccionada=null;
+let resultadoActual=null;
+ 
+const INCIDENCIA_CONFIG={
+  ogp:{
+    label:'Incidencia para Gobierno Abierto',
+    color:'#185FA5', colorBg:'#E6F1FB',
+    marcos:[
+      {nombre:'Open Government Partnership',articulo:'Portal OGP',texto:'Compromisos nacionales de datos abiertos y transparencia activa en planes de acción vigentes.'},
+      {nombre:'Carta Internacional de Datos Abiertos',articulo:'Principio 1-6',texto:'Los datos deben ser abiertos por defecto, oportunos, accesibles, comparables, para mejorar la gobernanza y el desarrollo inclusivo.'},
+      {nombre:'Global Data Barometer',articulo:'Edición 2022',texto:'Índice que mide disponibilidad, accesibilidad y uso de datos para el bien público en más de 100 países.'}
+    ],
+    accion:'Incluir en Plan de Acción OGP'
+  },
+  ddhh:{
+    label:'Incidencia para DDHH',
+    color:'#3C3489', colorBg:'#EEEDFE',
+    marcos:[
+      {nombre:'Enfoque basado en DDHH para datos',articulo:'OHCHR 2018',texto:'Los datos deben desagregar por grupos en situación de vulnerabilidad y ser utilizados para rendir cuentas sobre el cumplimiento de obligaciones estatales.'},
+      {nombre:'Principios de no regresión',articulo:'PIDESC',texto:'El Estado no puede retroceder en la producción de datos que permiten monitorear derechos económicos, sociales y culturales.'},
+      {nombre:'CEDAW — Rec. General 9',articulo:'Artículo 3',texto:'Los Estados deben recopilar datos estadísticos desagregados por sexo en todas las esferas cubiertas por la Convención.'}
+    ],
+    accion:'Presentar ante mecanismo de DDHH'
+  },
+  digital:{
+    label:'Incidencia para Cooperación Digital',
+    color:'#3C3489', colorBg:'#EEEDFE',
+    marcos:[
+      {nombre:'Global Digital Cooperation — ONU',articulo:'Objetivo 1B',texto:'Garantizar la conectividad universal y asequible y que nadie se quede atrás en la economía digital, incluyendo producción de datos con perspectiva de género.'},
+      {nombre:'Hoja de ruta para Cooperación Digital',articulo:'Meta 2C',texto:'Promover arquitecturas de datos inclusivas que reflejen las necesidades de los países del Sur Global y de grupos históricamente excluidos.'},
+      {nombre:'Pacto Digital Global — 2024',articulo:'Principio de inclusión',texto:'Los datos deben ser gobernados con participación de la sociedad civil y con énfasis en grupos subrepresentados en la economía digital.'}
+    ],
+    accion:'Elevar al Foro de Cooperación Digital'
+  },
+  cooperativa:{
+    label:'Incidencia para Gobernanza Cooperativa',
+    color:'#085041', colorBg:'#E1F5EE',
+    marcos:[
+      {nombre:'Marco de Copenhague sobre Datos Ciudadanos',articulo:'BG-4c-CGD',texto:'Los datos generados por la ciudadanía deben integrarse en ecosistemas estadísticos nacionales con gobernanza participativa y no extractivista.'},
+      {nombre:'Participation for Transformation — Gender Data',articulo:'Framework PARIS21',texto:'La producción, uso y reutilización de datos de género debe basarse en la participación activa de las mujeres y organizaciones feministas en el diseño estadístico.'},
+      {nombre:'Data Cooperativas Latinas',articulo:'Modelo de Gobernanza',texto:'Infraestructura de datos cooperativa donde las organizaciones son co-propietarias de los datos y del modelo de gobernanza, no solo usuarias.'}
+    ],
+    accion:'Activar en nodo cooperativo'
+  }
+};
+ 
+function seleccionarIncidencia(tipo,btn){
+  incidenciaSeleccionada=tipo;
+  document.querySelectorAll('.termometro-chip').forEach(c=>c.classList.remove('selected'));
+  btn.classList.add('selected');
+  document.getElementById('btn-generar-infografia').disabled=false;
+  document.getElementById('infografia-panel').classList.remove('visible');
+}
+ 
+function generarInfografia(){
+  if(!incidenciaSeleccionada||!resultadoActual){return;}
+  const data=resultadoActual;
+  const pct=Math.round(data.score*100);
+  const cat=data.categoria;
+  const scoreColor={critica:'var(--gap-crit)',parcial:'var(--gap-part)',cubierta:'var(--gap-cov)'}[cat];
+ 
+  const tipos=incidenciaSeleccionada==='todas'
+    ?Object.keys(INCIDENCIA_CONFIG)
+    :[incidenciaSeleccionada];
+ 
+  let marcosHTML='';
+  tipos.forEach(tipo=>{
+    const cfg=INCIDENCIA_CONFIG[tipo];
+    cfg.marcos.forEach(m=>{
+      marcosHTML+=`
+        <div class="infografia-marco" style="border-left:3px solid ${cfg.color};">
+          <div class="infografia-marco-label" style="color:${cfg.color}">${cfg.label}</div>
+          <div class="infografia-marco-nombre">${m.nombre} · ${m.articulo}</div>
+          <div class="infografia-marco-texto">${m.texto}</div>
+        </div>`;
+    });
+  });
+ 
+  const accionesHTML=tipos.map(t=>`
+    <span style="font-size:11px;padding:3px 10px;border-radius:12px;background:${INCIDENCIA_CONFIG[t].colorBg};color:${INCIDENCIA_CONFIG[t].color};font-family:var(--mono);font-weight:500;">
+      ${INCIDENCIA_CONFIG[t].accion}
+    </span>`).join('');
+ 
+  const fecha=new Date().toLocaleDateString('es-MX',{day:'2-digit',month:'long',year:'numeric'});
+ 
+  document.getElementById('infografia-canvas').innerHTML=`
+    <div class="infografia-top">
+      <div>
+        <div class="infografia-eyebrow">Infra.Coop · Termómetro de Incidencia · ${fecha}</div>
+        <div class="infografia-titulo">${data.titulo}</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:.75rem;">${accionesHTML}</div>
+      </div>
+      <div class="infografia-score-badge">
+        <div class="infografia-score-grande" style="color:${scoreColor}">${pct}</div>
+        <div class="infografia-score-etiq">brecha</div>
+        <div style="margin-top:4px;"><span class="gap-category-badge ${cat}">${cat}</span></div>
+      </div>
+    </div>
+ 
+    <div class="infografia-brecha-barra">
+      <div class="infografia-brecha-label">
+        <span>Nivel de brecha</span>
+        <span style="color:${scoreColor};font-weight:600">${pct}/100</span>
+      </div>
+      <div class="infografia-track">
+        <div class="infografia-fill" id="infog-fill" style="width:0%;background:${scoreColor}"></div>
+      </div>
+    </div>
+ 
+    <div style="margin:1rem 0 .5rem;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-light);font-family:var(--mono);">
+      Marcos de referencia para incidencia
+    </div>
+    ${marcosHTML}
+ 
+    <div style="margin:.75rem 0 .5rem;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-light);font-family:var(--mono);">
+      Síntesis de la brecha
+    </div>
+    <div style="font-size:13px;color:var(--ink-mid);line-height:1.65;background:white;padding:.75rem 1rem;border-radius:var(--r);">
+      ${data.sintesis}
+    </div>
+ 
+    <div class="infografia-footer">
+      <span>Datos: ${data.datasets.length} datasets · ${data.frameworks.length} normas</span>
+      <span>Motor: Infra.Coop v0.3 · Data Cooperativas Latinas</span>
+      <span>${fecha}</span>
+    </div>`;
+ 
+  const panel=document.getElementById('infografia-panel');
+  panel.classList.add('visible');
+  setTimeout(()=>{
+    const f=document.getElementById('infog-fill');
+    if(f)f.style.width=pct+'%';
+    panel.scrollIntoView({behavior:'smooth',block:'start'});
+  },100);
+  showToast('Infografía de incidencia generada');
+}
+ 
+/* ══ DESCARGAS ══ */
+function descargarInfografia(formato){
+  const canvas=document.getElementById('infografia-canvas');
+  if(!canvas||canvas.innerHTML===''){showToast('Primero generá la infografía de incidencia');return;}
+  if(formato==='jpg'){
+    capturarYDescargar(canvas,'infracoop_incidencia_'+new Date().toISOString().slice(0,10)+'.jpg','image/jpeg');
+  } else {
+    descargarComoPDF(canvas,'infracoop_incidencia_'+new Date().toISOString().slice(0,10));
+  }
+}
+ 
+function descargarDiagnostico(formato){
+  const sec=document.getElementById('results-section');
+  if(!resultadoActual){showToast('Primero realizá una búsqueda');return;}
+  if(formato==='jpg'){
+    capturarYDescargar(sec,'infracoop_diagnostico_'+new Date().toISOString().slice(0,10)+'.jpg','image/jpeg');
+  } else {
+    descargarComoPDF(sec,'infracoop_diagnostico_'+new Date().toISOString().slice(0,10));
+  }
+}
+ 
+function capturarYDescargar(elemento,nombre,tipo){
+  // Usa la API nativa de impresión del browser como fallback
+  // En producción se integraría html2canvas
+  const w=window.open('','_blank');
+  if(!w){showToast('Permitir popups para descargar');return;}
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8">
+    <style>
+      body{font-family:system-ui,sans-serif;padding:2rem;max-width:800px;margin:0 auto;color:#1a1916;background:#f5f3ee;}
+      *{box-sizing:border-box;}
+      ${document.querySelector('style')?.textContent||''}
+    </style>
+    <title>Infra.Coop — Diagnóstico</title>
+    </head><body>${elemento.innerHTML}</body></html>`);
+  w.document.close();
+  setTimeout(()=>{w.print();},600);
+  showToast('Abriendo vista de impresión — guardá como PDF o imagen');
+}
+ 
+function descargarComoPDF(elemento,nombre){
+  capturarYDescargar(elemento,nombre+'.pdf','application/pdf');
+}
+ 
+/* ══ CLASIFICACIÓN AUTOMÁTICA REVISADA ══
+   Señales y pesos (revisados):
+   S1 Metadatos     20% — fuente + metodología. SOLA no determina calidad completa.
+   S2 Frecuencia    30% — >3 años: Nula (bloquea). >2 años: contribuye a Parcial. ≤2 años: OK.
+   S3 Desagregación 30% — distribución geográfica vs solo totales nacionales.
+   S4 Accesibilidad 20% — URL presente + formato legible por máquina (CSV/JSON/XLSX/API).
+   Completa requiere: S2 ≤ 2 años + S3 geográfica + S4 formato legible + score ≥ 0.70.
+══ */
+function calcularCalidadAuto(datos){
+  const anioActual=new Date().getFullYear();
+  const anio=parseInt(datos.anio)||0;
+  const antiguedad=anio>0?anioActual-anio:99;
+  const formato=datos.formato||'';
+  const metodologia=datos.metodologia||'no';
+  const desagregacion=datos.desagregacion||'sin-dato';
+  const tieneUrl=!!(datos.url&&datos.url.trim().length>4);
+  const formatoLegible=['csv','json','xlsx','api'].includes(formato);
+ 
+  // S1: Metadatos (20%) — fuente + metodología. No determina calidad sola.
+  const tieneFuente=!!(datos.fuente&&datos.fuente.trim());
+  let s1=0,razonS1='';
+  if(tieneFuente&&metodologia==='si'){s1=1.0;razonS1='Fuente documentada + metodología publicada';}
+  else if(tieneFuente&&metodologia==='parcial'){s1=0.6;razonS1='Fuente presente, metodología parcial';}
+  else if(tieneFuente){s1=0.3;razonS1='Fuente presente, sin metodología';}
+  else{s1=0;razonS1='Sin fuente identificada';}
+ 
+  // S2: Frecuencia (30%) — >3 años bloquea a Nula; >2 años impide Completa
+  let s2=0,razonS2='';
+  if(anio===0){s2=0.1;razonS2='Año desconocido';}
+  else if(antiguedad>3){s2=0;razonS2=`${antiguedad} años sin actualizar → Nula por frecuencia (umbral: 3 años)`;}
+  else if(antiguedad>2){s2=0.4;razonS2=`${antiguedad} años sin actualizar → contribuye a Parcial (umbral: 2 años)`;}
+  else{s2=1.0;razonS2=`Publicado hace ${antiguedad} año${antiguedad!==1?'s':''} — frecuencia vigente`;}
+ 
+  // S3: Desagregación geográfica (30%)
+  let s3=0,razonS3='';
+  if(desagregacion==='geografica'){s3=1.0;razonS3='Distribución geográfica presente (municipio, región o territorio)';}
+  else if(desagregacion==='nacional'){s3=0.3;razonS3='Solo totales nacionales — sin distribución geográfica';}
+  else{s3=0;razonS3='Desagregación geográfica desconocida o no especificada';}
+ 
+  // S4: Accesibilidad (20%) — URL + formato legible por máquina
+  let s4=0,razonS4='';
+  if(tieneUrl&&formatoLegible){s4=1.0;razonS4=`URL accesible + formato ${formato.toUpperCase()} legible por máquina`;}
+  else if(tieneUrl&&formato==='pdf-no-legible'){s4=0.25;razonS4='URL presente pero PDF no es legible por máquina';}
+  else if(tieneUrl&&formato==='sin-descarga'){s4=0.1;razonS4='URL presente pero sin descarga disponible';}
+  else if(tieneUrl&&!formato){s4=0.4;razonS4='URL presente, formato no especificado';}
+  else{s4=0;razonS4='Sin URL de descarga registrada';}
+ 
+  const score=s1*0.20+s2*0.30+s3*0.30+s4*0.20;
+ 
+  // Lógica de clasificación revisada
+  let calidad;
+  if(antiguedad>3){
+    calidad='nula'; // Frecuencia bloquea
+  } else if(score>=0.70&&antiguedad<=2&&s3>=0.7&&formatoLegible){
+    calidad='completa'; // Todos los requisitos de Completa presentes
+  } else if(score>=0.35){
+    calidad='parcial';
+  } else {
+    calidad='nula';
+  }
+ 
+  const confianza=score>=0.65?'alta':score>=0.40?'media':'baja';
+ 
+  return{calidad,score:Math.round(score*100),confianza,senales:[
+    {label:'Metadatos',valor:razonS1,score:Math.round(s1*100),peso:'20%'},
+    {label:'Frecuencia',valor:razonS2,score:Math.round(s2*100),peso:'30%'},
+    {label:'Desagregación geográfica',valor:razonS3,score:Math.round(s3*100),peso:'30%'},
+    {label:'Accesibilidad y formato',valor:razonS4,score:Math.round(s4*100),peso:'20%'}
+  ]};
+}
+ 
+function analizarDataset(){
+  const titulo=document.getElementById('ds-titulo').value.trim();
+  if(!titulo){showToast('Completá al menos el título antes de analizar');return;}
+  const datos={
+    titulo,fuente:document.getElementById('ds-fuente').value.trim(),
+    anio:document.getElementById('ds-anio').value,
+    formato:document.getElementById('ds-formato').value,
+    metodologia:document.getElementById('ds-metodologia').value,
+    desagregacion:document.getElementById('ds-desagregacion').value,
+    url:document.getElementById('ds-url').value.trim()
+  };
+  analisisActual=calcularCalidadAuto(datos);
+  registroPendiente={...datos,agendas:getAgendas('ds'),licencia:document.getElementById('ds-licencia').value,descripcion:document.getElementById('ds-descripcion').value.trim(),subtema:document.getElementById('ds-subtema').value.trim(),pais:document.getElementById('ds-pais').value,revisor:document.getElementById('ds-revisor').value.trim()};
+  renderAnalisisPanel();
+}
+ 
+function renderAnalisisPanel(){
+  const a=analisisActual;
+  document.getElementById('confianza-badge').textContent=`Confianza ${a.confianza}`;
+  document.getElementById('confianza-badge').className=`confianza-badge ${a.confianza}`;
+  document.getElementById('senales-grid').innerHTML=a.senales.map(s=>`
+    <div class="senal-item">
+      <div class="senal-label">${s.label} <span style="font-weight:400">(${s.peso})</span></div>
+      <div class="senal-valor">${s.valor}</div>
+      <div class="senal-score">Score parcial: ${s.score}/100</div>
+    </div>`).join('');
+  const sf=document.getElementById('sugerencia-final');
+  sf.className=`sugerencia-final ${a.calidad}`;
+  document.getElementById('sugerencia-valor').textContent={completa:'Completa',parcial:'Parcial',nula:'Nula'}[a.calidad];
+  document.getElementById('score-detalle').textContent=`Score ponderado: ${a.score}/100`;
+  document.getElementById('fundamento-revisor').value='';
+  const p=document.getElementById('analisis-panel');
+  p.classList.add('visible');
+  p.scrollIntoView({behavior:'smooth',block:'start'});
+}
+ 
+/* ══ FLUJO POST-FUNDAMENTO ══ */
+function analizarPostFundamento(){
+  const fundamento=document.getElementById('fundamento-revisor').value.trim();
+  if(fundamento.length<20){showToast('El fundamento debe tener al menos 20 caracteres');return;}
+  const revisor=document.getElementById('ds-revisor').value.trim()||'Revisor Principal';
+  const a=analisisActual;
+  const f=fundamento.toLowerCase();
+  let calidad_post=a.calidad,razon_cambio='';
+ 
+  // Análisis semántico del fundamento
+  if((f.includes('actualiz')||f.includes('reciente')||f.includes('vigente'))&&a.calidad==='nula'){
+    calidad_post='parcial';razon_cambio='El fundamento menciona actualización o vigencia — se sugiere reconsiderar a Parcial.';
+  } else if(f.includes('no existe')||f.includes('inexistente')||f.includes('sin datos')){
+    calidad_post='nula';razon_cambio='El fundamento confirma inexistencia de datos — se mantiene Nula.';
+  } else if((f.includes('descargable')||f.includes('legible')||f.includes('abierto')||f.includes('api'))&&a.calidad!=='completa'){
+    calidad_post=a.calidad==='nula'?'parcial':'completa';razon_cambio='El fundamento menciona accesibilidad o formato abierto — se sugiere mejorar clasificación.';
+  } else if((f.includes('geográ')||f.includes('territorial')||f.includes('municipal')||f.includes('distribución'))&&a.calidad!=='completa'){
+    calidad_post=a.calidad==='nula'?'parcial':'completa';razon_cambio='El fundamento menciona distribución geográfica — se sugiere mejorar clasificación.';
+  } else {
+    razon_cambio='El análisis del fundamento no altera la clasificación automática.';
+  }
+ 
+  const cambia=calidad_post!==a.calidad;
+  abrirModal(revisor,a.calidad,calidad_post,cambia,razon_cambio,fundamento);
+}
+ 
+function abrirModal(revisor,calidadOrig,calidadPost,cambia,razon,fundamento){
+  const N={completa:'Completa',parcial:'Parcial',nula:'Nula'};
+  document.getElementById('modal-title').textContent=cambia?'El análisis sugiere un cambio de categoría':'Confirmá la clasificación';
+  document.getElementById('modal-sub').textContent=cambia?`Luego de leer tu fundamento, el sistema detectó: ${razon}`:`${razon} Elegí cómo proceder.`;
+  document.getElementById('modal-analisis').innerHTML=`
+    <div class="mlabel">Clasificación automática original</div><div class="mvalor" style="margin-bottom:.5rem;">${N[calidadOrig]}</div>
+    ${cambia?`<div class="mlabel">Nueva sugerencia post-fundamento</div><div class="mvalor">${N[calidadPost]}</div>`:''}
+    <div style="font-size:12px;color:var(--ink-light);margin-top:.5rem;font-family:var(--mono);">Revisor Principal: ${revisor||'—'}</div>`;
+  document.getElementById('modal-actions').innerHTML=`
+    ${cambia?`<button class="btn-primary" onclick="confirmarClasificacion('${calidadPost}')">Aceptar cambio → ${N[calidadPost]}</button>`:''}
+    <button class="btn-primary" onclick="confirmarClasificacion('${calidadOrig}')" ${cambia?'style="background:var(--ink-mid)"':''}>
+      ${cambia?`Mantener ${N[calidadOrig]}`:`Confirmar ${N[calidadOrig]}`}
+    </button>
+    <button class="btn-ghost" onclick="clasificarManualmente()">Cambiar manualmente</button>
+    <button class="btn-warn" onclick="escalarAlNodo()">Escalar al nodo colectivo</button>`;
+  document.getElementById('modal-overlay').classList.add('visible');
+}
+ 
+function cerrarModal(){document.getElementById('modal-overlay').classList.remove('visible');}
+ 
+function confirmarClasificacion(calidad){
+  cerrarModal();
+  const revisor=document.getElementById('ds-revisor').value.trim()||'Revisor Principal';
+  const fundamento=document.getElementById('fundamento-revisor').value.trim();
+  const r={...registroPendiente,tipo:'dataset',id:'ds-'+Date.now(),calidad,calidad_auto:analisisActual.calidad,score_auto:analisisActual.score,confianza_auto:analisisActual.confianza,revisor_principal:revisor,fundamento_revision:fundamento,estado:'publicado',cargado_en:new Date().toISOString()};
+  registrosDB.datasets.push(r);
+  actualizarContador();limpiarFormDataset();
+  showToast(`Dataset publicado · Calidad: ${CALIDAD_DISPLAY[calidad]}`);
+}
+ 
+function clasificarManualmente(){
+  cerrarModal();
+  const calidad=prompt('Clasificá manualmente:\n\n1 → Completa\n2 → Parcial\n3 → Nula','2');
+  const mapa={'1':'completa','2':'parcial','3':'nula'};
+  const c=mapa[calidad?.trim()];
+  if(c)confirmarClasificacion(c);
+  else showToast('Clasificación manual cancelada');
+}
+ 
+function escalarAlNodo(){
+  cerrarModal();
+  revisoresColectivos=[{id:1,estado:'pendiente',calidad:null,razon:''},{id:2,estado:'pendiente',calidad:null,razon:''},{id:3,estado:'pendiente',calidad:null,razon:''}];
+  const p=document.getElementById('colectivo-panel');
+  p.classList.add('visible');
+  document.getElementById('confirmacion-final').classList.remove('visible');
+  actualizarDots();renderRevisoresBlocks();
+  p.scrollIntoView({behavior:'smooth',block:'start'});
+  showToast('Escalado al nodo colectivo — se requiere consenso unánime de 3 revisores');
+}
+ 
+function renderRevisoresBlocks(){
+  document.getElementById('revisores-blocks').innerHTML=revisoresColectivos.map(r=>`
+    <div class="revisor-block" id="bloque-rc-${r.id}">
+      <div class="revisor-block-header">
+        <span class="revisor-block-label">Revisor Colectivo ${r.id}</span>
+        <span class="revisor-block-estado ${r.estado}" id="estado-rc-${r.id}">${{pendiente:'Pendiente',aprobado:'Clasificado',rechazado:'Rechazado'}[r.estado]}</span>
+      </div>
+      ${r.estado==='pendiente'?`
+        <div class="form-row three" style="margin-bottom:.5rem;">
+          <div class="field" style="grid-column:1/3;"><label>Nombre del Revisor Colectivo ${r.id}</label><input type="text" id="rc-nombre-${r.id}" placeholder="nombre"></div>
+          <div class="field"><label>Calidad propuesta</label>
+            <select id="rc-calidad-${r.id}">
+              <option value="completa">Completa</option>
+              <option value="parcial" selected>Parcial</option>
+              <option value="nula">Nula</option>
+            </select>
+          </div>
+        </div>
+        <div class="field" style="margin-bottom:.5rem;"><label>Fundamento (mín. 10 caracteres)</label>
+          <textarea class="fundamento-area" id="rc-fundamento-${r.id}" placeholder="Justificación de la clasificación propuesta..." style="min-height:60px;"></textarea>
+        </div>
+        <button class="btn-primary" style="font-size:12px;padding:7px 14px;" onclick="votarRC(${r.id})">Registrar voto</button>`
+      :`<div style="font-size:13px;color:var(--ink-mid);margin-top:4px;">Propuso: <strong>${CALIDAD_DISPLAY[r.calidad]||'—'}</strong> — ${r.razon}</div>`}
+    </div>`).join('');
+}
+ 
+function votarRC(id){
+  const nombre=document.getElementById(`rc-nombre-${id}`)?.value?.trim()||`Revisor Colectivo ${id}`;
+  const calidad=document.getElementById(`rc-calidad-${id}`)?.value||'parcial';
+  const razon=document.getElementById(`rc-fundamento-${id}`)?.value?.trim()||'';
+  if(razon.length<10){showToast('El fundamento del Revisor Colectivo necesita al menos 10 caracteres');return;}
+  const r=revisoresColectivos.find(x=>x.id===id);
+  if(r){r.estado='aprobado';r.calidad=calidad;r.razon=razon;r.nombre=nombre;}
+  actualizarDots();renderRevisoresBlocks();verificarConsenso();
+}
+ 
+function actualizarDots(){
+  revisoresColectivos.forEach((r,i)=>{
+    const d=document.getElementById(`dot-${i+1}`);
+    if(d)d.className=`consenso-dot ${r.estado==='aprobado'?'aprobado':r.estado==='rechazado'?'rechazado':''}`;
+  });
+}
+ 
+function verificarConsenso(){
+  const todos=revisoresColectivos.every(r=>r.estado!=='pendiente');
+  if(!todos)return;
+  const votos=revisoresColectivos.map(r=>r.calidad);
+  const unanime=votos[0]===votos[1]&&votos[1]===votos[2];
+  if(unanime){
+    document.getElementById('consenso-resultado').textContent=CALIDAD_DISPLAY[votos[0]];
+    document.getElementById('confirmacion-final').classList.add('visible');
+    showToast('Consenso unánime alcanzado — el Revisor Principal debe confirmar antes de publicar');
+  } else {
+    const counts={};votos.forEach(v=>{counts[v]=(counts[v]||0)+1;});
+    const mayoria=Object.entries(counts).sort((a,b)=>b[1]-a[1])[0];
+    document.getElementById('modal-title').textContent='Sin consenso unánime entre revisores colectivos';
+    document.getElementById('modal-sub').textContent=`Los 3 Revisores Colectivos no llegaron a un acuerdo unánime. La clasificación con más votos es ${CALIDAD_DISPLAY[mayoria[0]]} (${mayoria[1]}/3). El Revisor Principal decide cómo proceder.`;
+    document.getElementById('modal-analisis').innerHTML=revisoresColectivos.map(r=>`<div style="margin-bottom:4px;font-size:12px;"><strong>RC ${r.id} (${r.nombre||'—'}):</strong> ${CALIDAD_DISPLAY[r.calidad]||'—'} — ${r.razon||'sin fundamento'}</div>`).join('');
+    document.getElementById('modal-actions').innerHTML=`
+      <button class="btn-primary" onclick="confirmarClasificacion('${mayoria[0]}')">Publicar con mayoría (${CALIDAD_DISPLAY[mayoria[0]]})</button>
+      <button class="btn-ghost" onclick="cerrarModal();reiniciarRC()">Reabrir votación del nodo</button>
+      <button class="btn-ghost" onclick="cerrarModal()">Archivar sin publicar</button>`;
+    document.getElementById('modal-overlay').classList.add('visible');
+  }
+}
+ 
+function reiniciarRC(){
+  revisoresColectivos=[{id:1,estado:'pendiente',calidad:null,razon:''},{id:2,estado:'pendiente',calidad:null,razon:''},{id:3,estado:'pendiente',calidad:null,razon:''}];
+  actualizarDots();renderRevisoresBlocks();document.getElementById('confirmacion-final').classList.remove('visible');
+}
+ 
+function publicarRegistro(){
+  confirmarClasificacion(revisoresColectivos[0].calidad);
+  document.getElementById('colectivo-panel').classList.remove('visible');
+  document.getElementById('confirmacion-final').classList.remove('visible');
+}
+ 
+function rechazarPublicacion(){
+  document.getElementById('colectivo-panel').classList.remove('visible');
+  document.getElementById('analisis-panel').classList.remove('visible');
+  showToast('Registro archivado sin publicar');limpiarFormDataset();
+}
+ 
+/* ══ NORMATIVA ══ */
+function guardarNormativa(){
+  const nombre=document.getElementById('nm-nombre').value.trim();
+  if(!nombre){showToast('El nombre de la norma es obligatorio');return;}
+  registrosDB.normativas.push({tipo:'normativa',id:'nm-'+Date.now(),nombre,organismo:document.getElementById('nm-organismo').value.trim(),tipo_norma:document.getElementById('nm-tipo').value,pais:document.getElementById('nm-pais').value,articulo:document.getElementById('nm-articulo').value.trim(),obligacion:document.getElementById('nm-obligacion').value.trim(),descripcion:document.getElementById('nm-descripcion').value.trim(),agendas:getAgendas('nm'),url:document.getElementById('nm-url').value.trim(),revisor_principal:document.getElementById('nm-revisor').value.trim(),estado:'publicado',cargado_en:new Date().toISOString()});
+  limpiarFormNormativa();showToast(`Normativa "${nombre}" guardada`);actualizarContador();
+}
+ 
+/* ══ HELPERS ══ */
+function getAgendas(prefix){return[...document.querySelectorAll(`input[name="${prefix}-agenda"]:checked`)].map(el=>el.value);}
+ 
+function limpiarFormDataset(){
+  ['ds-titulo','ds-fuente','ds-anio','ds-subtema','ds-url','ds-descripcion','ds-revisor'].forEach(id=>document.getElementById(id).value='');
+  ['ds-pais','ds-formato','ds-licencia'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('ds-metodologia').value='si';document.getElementById('ds-desagregacion').value='geografica';
+  document.querySelectorAll('input[name="ds-agenda"]').forEach(el=>el.checked=false);
+  document.getElementById('analisis-panel').classList.remove('visible');
+  document.getElementById('colectivo-panel').classList.remove('visible');
+  document.getElementById('confirmacion-final').classList.remove('visible');
+  analisisActual=null;registroPendiente=null;
+}
+ 
+function limpiarFormNormativa(){
+  ['nm-nombre','nm-organismo','nm-articulo','nm-obligacion','nm-descripcion','nm-url','nm-revisor'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('nm-tipo').value='norma_oficial';document.getElementById('nm-pais').value='';
+  document.querySelectorAll('input[name="nm-agenda"]').forEach(el=>el.checked=false);
+}
+ 
+function switchTab(tab){
+  ['dataset','normativa','registros'].forEach(t=>{
+    document.getElementById('tab-'+t).style.display=t===tab?'':'none';
+    const btn=document.getElementById('tab-'+t+'-btn');
+    if(btn){btn.style.background=t===tab?'var(--ink)':'';btn.style.color=t===tab?'var(--paper)':'';btn.style.borderColor=t===tab?'var(--ink)':'';}
+  });
+  if(tab==='registros')renderRegistros();
+}
+ 
+function actualizarContador(){
+  const total=registrosDB.datasets.length+registrosDB.normativas.length;
+  const el=document.getElementById('registros-count');
+  if(el)el.textContent=`${total} registro${total!==1?'s':''} en esta sesión`;
+}
+ 
+function renderRegistros(){
+  actualizarContador();
+  const container=document.getElementById('registros-container');
+  const total=registrosDB.datasets.length+registrosDB.normativas.length;
+  if(total===0){container.innerHTML='<div class="empty-records">Aún no hay registros en esta sesión.</div>';return;}
+  const todos=[...registrosDB.datasets.map(r=>({...r,_label:r.titulo})),...registrosDB.normativas.map(r=>({...r,_label:r.nombre}))].sort((a,b)=>b.cargado_en.localeCompare(a.cargado_en));
+  container.innerHTML=`<table class="records-table"><thead><tr><th>Tipo</th><th>Nombre</th><th>País</th><th>Calidad final</th><th>Auto sugirió</th><th>Agendas</th><th>Estado</th><th>Hora</th></tr></thead><tbody>${
+    todos.map(r=>`<tr>
+      <td style="font-family:var(--mono);font-size:10px;color:var(--ink-light)">${r.tipo}</td>
+      <td style="font-weight:600;color:var(--ink);max-width:180px;">${r._label}</td>
+      <td style="font-family:var(--mono)">${r.pais||'Global'}</td>
+      <td><span class="quality-badge ${r.calidad}">${CALIDAD_DISPLAY[r.calidad]||r.calidad}</span></td>
+      <td style="font-family:var(--mono);font-size:10px;color:var(--ink-light)">${r.calidad_auto?CALIDAD_DISPLAY[r.calidad_auto]+' ('+r.score_auto+'%)':'—'}</td>
+      <td>${(r.agendas||[]).map(a=>`<span class="tag-agenda ${a}">${AGENDA_LABELS[a]||a}</span>`).join('')}</td>
+      <td><span class="estado-badge ${(r.estado||'borrador').replace(' ','-')}">${r.estado||'borrador'}</span></td>
+      <td style="font-family:var(--mono);font-size:10px;color:var(--ink-light)">${new Date(r.cargado_en).toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'})}</td>
+    </tr>`).join('')
+  }</tbody></table>`;
+}
+ 
+function exportarRegistros(){
+  const blob=new Blob([JSON.stringify(registrosDB,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);const a=document.createElement('a');
+  a.href=url;a.download=`infracoop_ingesta_${new Date().toISOString().slice(0,10)}.json`;a.click();
+  URL.revokeObjectURL(url);showToast('JSON exportado');
+}
+ 
+function showToast(msg){
+  const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2500);
+}
+ 
+document.getElementById('btn-buscar').disabled=true;
+document.getElementById('modal-overlay').addEventListener('click',function(e){if(e.target===this)cerrarModal();});
+</script>
+</body>
+</html>
