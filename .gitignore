@@ -1,0 +1,21 @@
+# Claude Code
+CLAUDE.md
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Archives and temp exports
+*.tmp
+*.bak
+
+# Node (if a build step is added later)
+node_modules/
+dist/
