@@ -32,4 +32,4 @@ archive/            ← Versiones anteriores del prototipo
 
 ## Créditos
 
-Desarrollado por [Data Cooperativas Latinas](https://datacooperativaslatinas.org) con el apoyo del Mozilla Fellowship.
+Desarrollado por [Data Cooperativas Latinas]con el apoyo del Mozilla Fellowship.
