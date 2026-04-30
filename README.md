@@ -18,3 +18,9 @@ Front-end: Dashboard con campo inicial de pregunta sobre datos, resultados (basa
 Algoritmo: modelo cooperativo de maduración del criterio de calidad del dato a través de atributos diversos derivados de principios de datos abiertos, construídos por la ciudadanía e inclusivos.
 
 
+InfraCoop consta de distintas capas de acción:
+La primera es la del Monitor donde Diversa ha colaborado en su implementación.
+La segunda está pensada como comunidad de aprendizaje a través de nodos federados
+La tercera será un espacio de intercambio y gobernanza de datos.
+
+
