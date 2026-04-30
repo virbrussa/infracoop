@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tablero 20 días · Motor de Brechas · Infra.Coop</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1916;
+    --ink-mid: #4a4844;
+    --ink-light: #8a8880;
+    --ink-faint: #d4d2cc;
+    --paper: #f5f3ee;
+    --paper-warm: #ece9e2;
+    --surface: #ffffff;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Instrument Sans', system-ui, sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    padding: 2rem;
+    min-height: 100vh;
+  }
+  h1 {
+    font-size: 18px;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    margin-bottom: 4px;
+  }
+  .sub {
+    font-size: 12px;
+    color: var(--ink-light);
+    font-family: 'DM Mono', monospace;
+    margin-bottom: 1.5rem;
+  }
+  .day-grid {
+    display: grid;
+    grid-template-columns: 110px repeat(20, 1fr);
+    gap: 2px;
+    font-size: 11px;
+    margin: 0 0 1.5rem;
+  }
+  .cell {
+    padding: 4px 3px;
+    border-radius: 3px;
+    min-height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    line-height: 1.3;
+    cursor: pointer;
+    transition: opacity .15s;
+  }
+  .cell:hover { opacity: .75; }
+  .label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--ink-light);
+    display: flex;
+    align-items: center;
+    padding-right: 6px;
+  }
+  .day-num {
+    font-size: 11px;
+    color: var(--ink-light);
+    text-align: center;
+    padding: 2px 0 6px;
+    font-family: 'DM Mono', monospace;
+  }
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: .8rem 0 1.2rem;
+    font-size: 12px;
+    color: var(--ink-mid);
+    align-items: center;
+  }
+  .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    display: inline-block;
+    margin-right: 4px;
+    vertical-align: middle;
+  }
+  .milestone {
+    background: #FAEEDA;
+    color: #633806;
+    font-size: 10px;
+    font-weight: 500;
+    border-radius: 3px;
+    padding: 2px 5px;
+    font-family: 'DM Mono', monospace;
+  }
+  .detail-panel {
+    background: var(--surface);
+    border: 1px solid var(--ink-faint);
+    border-radius: 10px;
+    padding: .85rem 1.1rem;
+    margin: .5rem 0;
+    font-size: 13px;
+    color: var(--ink-mid);
+    min-height: 60px;
+    line-height: 1.6;
+    transition: border-color .15s;
+  }
+  .detail-panel:focus-within { border-color: var(--ink); }
+  .detail-title {
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 5px;
+    font-size: 13px;
+  }
+  .hitos-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+  }
+  .hito-card {
+    background: var(--surface);
+    border: 1px solid var(--ink-faint);
+    border-radius: 8px;
+    padding: .6rem .9rem;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+    min-width: 180px;
+  }
+  .hito-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    background: #FAEEDA;
+    color: #633806;
+    padding: 2px 7px;
+    border-radius: 3px;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .hito-text { color: var(--ink-mid); font-size: 12px; }
+  @media (max-width: 900px) {
+    body { padding: 1rem; }
+    .day-grid { overflow-x: auto; min-width: 700px; }
+    .day-grid-wrap { overflow-x: auto; }
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ink: #e8e6df;
+      --ink-mid: #b4b2a9;
+      --ink-light: #6a6864;
+      --ink-faint: #3a3836;
+      --paper: #1a1916;
+      --paper-warm: #222019;
+      --surface: #242220;
+    }
+    .milestone { background: #412402; color: #FAC775; }
+    .hito-num { background: #412402; color: #FAC775; }
+    .hito-card { background: var(--surface); }
+    .detail-panel { background: var(--surface); }
+  }
+</style>
+</head>
+<body>
+
+<h1>Tablero de 20 días · Motor de brechas</h1>
+<p class="sub">Infra.Coop · Fase 2 · Backend · Algoritmo · Frontend · Testing</p>
+
+<div class="legend">
+  <span><span class="dot" style="background:#CECBF6"></span>Backend</span>
+  <span><span class="dot" style="background:#9FE1CB"></span>Frontend</span>
+  <span><span class="dot" style="background:#F5C4B3"></span>Algoritmo / IA</span>
+  <span><span class="dot" style="background:#D3D1C7"></span>Testing / revisión</span>
+  <span><span class="milestone">M</span> Hito clave</span>
+</div>
+
+<div class="hitos-row">
+  <div class="hito-card"><span class="hito-num">Día 10 · M1</span><span class="hito-text">Backend completo y endpoints respondiendo</span></div>
+  <div class="hito-card"><span class="hito-num">Día 15 · M2</span><span class="hito-text">Pipeline completo validado con participantes</span></div>
+  <div class="hito-card"><span class="hito-num">Día 20 · M3</span><span class="hito-text">Demo funcional para Mozilla</span></div>
+</div>
+
+<div class="day-grid-wrap">
+  <div class="day-grid" id="grid"></div>
+</div>
+
+<div class="detail-panel" id="detail-panel">
+  <div class="detail-title" id="dp-title">Hacé clic en cualquier celda para ver el detalle de la tarea</div>
+  <div id="dp-body" style="color:var(--ink-light);font-size:12px;">← Cada bloque de color es una tarea del sprint. Los hitos M1, M2 y M3 marcan los puntos de revisión.</div>
+</div>
+
+<script>
+const DAYS = 20;
+const TRACKS = [
+  { label: 'Backend',   color: '#CECBF6', textColor: '#3C3489' },
+  { label: 'Algoritmo', color: '#F5C4B3', textColor: '#712B13' },
+  { label: 'Frontend',  color: '#9FE1CB', textColor: '#085041' },
+  { label: 'Testing',   color: '#D3D1C7', textColor: '#444441' },
+];
+
+const tasks = {
+  Backend: {
+    1:  { label: 'Setup DB', detail: 'PostgreSQL local con pgvector. Crear schema inicial: datasets, frameworks, questions, gaps. Dockerizar entorno de desarrollo.' },
+    2:  { label: 'Ingesta datasets', detail: 'Script ETL para cargar datasets de ONU Mujeres, CEPAL, OGP. Normalización de campos: fuente, país, año, tema, variable.' },
+    3:  { label: 'Ingesta datasets', detail: 'Continúa ETL. Cargar marcos normativos: NOM-046, CEDAW, ODS 5. Parsear PDF/JSON a texto estructurado para embeddings.' },
+    4:  { label: 'Embeddings', detail: 'Opción A: pgvector con modelo paraphrase-multilingual-mpnet (local, sin costo). Opción B: Pinecone hosted. Generar embeddings para todos los datasets.' },
+    5:  { label: 'Embeddings', detail: 'Generar embeddings para marcos normativos. Indexar con ivfflat. Validar búsqueda semántica básica con 5 preguntas de prueba.' },
+    6:  { label: 'API pregunta', detail: 'Endpoint POST /query: recibe texto libre, devuelve resultados top-k con score de similitud. FastAPI + Pydantic.' },
+    7:  { label: 'API brecha', detail: 'Endpoint POST /gap: cruza datasets vs marcos normativos. Lógica de scoring de brecha: (normativa_exige - dataset_disponible).' },
+    8:  { label: 'API brecha', detail: 'Afinar scoring. Agregar campo "calidad_dato": completo / parcial / ausente. Añadir metadata de fuente y fecha al response.' },
+    9:  { label: 'Log preguntas', detail: 'Endpoint POST /log_question: guarda pregunta anonimizada + embedding + timestamp en tabla questions. Base del mapa colectivo.' },
+    10: { label: 'Hito M1', detail: 'HITO: Backend completo. Todos los endpoints responden. Seed data cargado. Tests de integración básicos pasan. Demo interna.' },
+    11: { label: 'Optimización', detail: 'Ajuste de índices ivfflat en pgvector. Caché Redis para queries repetidas. Paginación en resultados de la API.' },
+    12: { label: 'Seguridad base', detail: 'Rate limiting en endpoints. Sanitización de inputs. Logging de errores. Variable de entorno para API keys del LLM.' },
+    14: { label: 'Revisión API', detail: 'Revisión de contratos de API con el equipo frontend. Ajustes de schema JSON según feedback de integración.' },
+    17: { label: 'Integración', detail: 'Prueba end-to-end con frontend completo. Corrección de bugs de integración. Verificar latencias reales.' },
+    18: { label: 'Deploy staging', detail: 'Deploy en entorno de staging (Railway o Render). Variables de entorno configuradas. Health checks activos.' },
+    20: { label: 'Hito M3', detail: 'HITO: Sistema completo desplegado en staging. Demo funcional con 3 preguntas reales de las participantes de la Jornada CDMX.' },
+  },
+  Algoritmo: {
+    1:  { label: 'Diseño pipeline', detail: 'Definir el pipeline: pregunta → embedding → búsqueda semántica → cruce normativo → scoring → síntesis LLM.' },
+    2:  { label: 'Modelo embedding', detail: 'Opción A: sentence-transformers (local, sin costo). Opción B: OpenAI text-embedding-3-small (calidad alta). Evaluar con 20 preguntas de género.' },
+    3:  { label: 'Benchmark', detail: 'Benchmark de modelos en español e idiomas indígenas. Elegir según score en preguntas de salud reproductiva y justicia.' },
+    4:  { label: 'Algoritmo gap', detail: 'Diseñar función de scoring: score = (1 - sim_dataset) × 0.6 + cobertura_norma × 0.4. Output: score 0–1 + categoría crítica/parcial/cubierta.' },
+    5:  { label: 'Algoritmo gap', detail: 'Implementar y testear scoring con 15 casos reales de la Jornada CDMX. Ajustar pesos semánticos vs normativos.' },
+    6:  { label: 'Síntesis LLM', detail: 'Opción A: GPT-4o-mini (económico). Opción B: Claude Haiku. Prompt engineering para síntesis en español simple, sin jerga técnica.' },
+    7:  { label: 'Síntesis LLM', detail: 'Iterar prompt. La respuesta debe: 1) nombrar datos disponibles, 2) citar la norma, 3) describir la brecha en lenguaje accesible.' },
+    8:  { label: 'Hito alg.', detail: 'HITO ALGORITMO: Pipeline completo funciona end-to-end. Testeado con 10 preguntas reales. Revisión con 1–2 participantes de la Jornada.' },
+    9:  { label: 'Mapa colectivo', detail: 'Algoritmo de clustering de preguntas: agrupar preguntas similares en temas. Usar k-means sobre embeddings de la tabla questions.' },
+    10: { label: 'Mapa colectivo', detail: 'Generar visualización de clusters: qué temas concentran más preguntas sin respuesta. Exportar como JSON para el frontend.' },
+    11: { label: 'Anonimización', detail: 'Pipeline de sanitización: detectar y reemplazar nombres propios y lugares sensibles usando spaCy NER antes de insertar en DB.' },
+    13: { label: 'Evaluación', detail: 'Evaluación cualitativa con 3 personas de organizaciones. ¿La síntesis es comprensible? ¿La brecha está bien identificada?' },
+    15: { label: 'Refinamiento', detail: 'Incorporar feedback de evaluación. Afinar prompt de síntesis. Ajustar thresholds de scoring según respuestas reales.' },
+    19: { label: 'Documentación', detail: 'Documentar el pipeline: decisiones de diseño, parámetros elegidos, limitaciones conocidas. Publicar en repositorio Git.' },
+  },
+  Frontend: {
+    1:  { label: 'Wireframe', detail: 'Opciones: A) Una pantalla con campo + resultados desplegables. B) Flujo de 2 pasos: pregunta → visualización de brecha.' },
+    2:  { label: 'Wireframe', detail: 'Validar wireframe con criterio de accesibilidad: funciona en móvil básico, bajo ancho de banda, sin login requerido.' },
+    3:  { label: 'Setup', detail: 'Opción A: Next.js (SSR, bueno para SEO). Opción B: Vite + React (más ligero). Para MVP con conectividad baja: Opción B recomendada.' },
+    4:  { label: 'Campo pregunta', detail: 'Componente de entrada: textarea con placeholder en español, contador de caracteres, botón de envío. Sin jerga técnica.' },
+    5:  { label: 'Campo pregunta', detail: 'Agregar sugerencias predefinidas basadas en preguntas de la Jornada CDMX. Autocomplete básico por topic.' },
+    6:  { label: 'Resultados', detail: 'Componente de resultados: lista de datasets con fuente, año, calidad. Diseño por tarjetas. Estado vacío con mensaje claro.' },
+    7:  { label: 'Viz brecha', detail: 'Visualización de brecha: semáforo rojo/amarillo/verde según score. Etiqueta de la norma que exige el dato.' },
+    8:  { label: 'Viz brecha', detail: 'Panel de síntesis LLM: texto explicativo de la brecha. Indicador de fuentes. Botón "compartir esta brecha" para incidencia.' },
+    9:  { label: 'Mapa colectivo', detail: 'Vista del mapa de brechas colectivo: nube de temas con tamaño proporcional a preguntas sin respuesta. Filtro por tema/país.' },
+    10: { label: 'Hito M2-FE', detail: 'HITO FRONTEND: Flujo completo desde pregunta hasta visualización de brecha conectado a API staging. Demo interna.' },
+    11: { label: 'Accesibilidad', detail: 'Revisión: contraste de colores, fuente mínima 16px, navegación por teclado, etiquetas ARIA para lectores de pantalla.' },
+    12: { label: 'Accesibilidad', detail: 'Test en dispositivo móvil real. Verificar carga bajo 3G simulado. Optimizar peso de assets y tiempo de carga inicial.' },
+    13: { label: 'Textos UX', detail: 'Revisión de todos los textos de la interfaz con perspectiva feminista. Sin jerga técnica. Lenguaje inclusivo.' },
+    14: { label: 'Textos UX', detail: 'Glosario contextual: tooltip en términos como "marco normativo", "brecha de datos". Accesible para acompañantes territoriales.' },
+    16: { label: 'Iteración UI', detail: 'Incorporar feedback de evaluación del algoritmo. Ajustar visualizaciones según comprensión real de las usuarias.' },
+    18: { label: 'Deploy staging', detail: 'Deploy frontend en Vercel. Conectar con backend staging. Prueba de humo completa del flujo end-to-end.' },
+    20: { label: 'Hito M3', detail: 'HITO FINAL: Demo funcional con las 3 preguntas seleccionadas de la Jornada CDMX. Registro en video para propuesta Mozilla.' },
+  },
+  Testing: {
+    5:  { label: 'Test datos', detail: 'Verificar calidad de datos ingestados: cobertura de países, años, temas. Identificar gaps obvios en el seed data inicial.' },
+    8:  { label: 'Test algoritmo', detail: 'Test cualitativo del pipeline con 5 preguntas reales. ¿El scoring es coherente? ¿La síntesis es comprensible?' },
+    10: { label: 'Sesión revisión', detail: 'SESIÓN: 2 horas con 2–3 participantes de la Jornada CDMX. Feedback sobre usabilidad y pertinencia de las respuestas del sistema.' },
+    13: { label: 'Test usuarias', detail: 'Testing con 3 perfiles: funcionaria pública, acompañante territorial, daterx. Registrar confusiones y aciertos en cada flujo.' },
+    16: { label: 'Test integración', detail: 'Test de integración backend-frontend completo. Verificar que el mapa colectivo se actualiza con nuevas preguntas registradas.' },
+    19: { label: 'Test final', detail: 'Test de regresión completo. Verificar todos los flujos con los 3 perfiles de usuaria. Lista de bugs conocidos documentada.' },
+    20: { label: 'Cierre sprint', detail: 'Documentación del sprint: qué funcionó, qué quedó pendiente, decisiones técnicas tomadas. Base para la siguiente fase.' },
+  }
+};
+
+const milestones = { 10: 'M1', 15: 'M2', 20: 'M3' };
+
+const grid = document.getElementById('grid');
+
+// Day numbers header row
+const headerLabel = document.createElement('div');
+headerLabel.className = 'label';
+grid.appendChild(headerLabel);
+for (let d = 1; d <= DAYS; d++) {
+  const dn = document.createElement('div');
+  dn.className = 'day-num';
+  dn.textContent = d;
+  grid.appendChild(dn);
+}
+
+// Track rows
+TRACKS.forEach(track => {
+  const labelCell = document.createElement('div');
+  labelCell.className = 'label';
+  labelCell.textContent = track.label;
+  grid.appendChild(labelCell);
+
+  for (let d = 1; d <= DAYS; d++) {
+    const cell = document.createElement('div');
+    cell.className = 'cell';
+    const task = tasks[track.label]?.[d];
+    if (task) {
+      cell.style.background = track.color;
+      cell.style.color = track.textColor;
+      cell.style.fontWeight = '500';
+      cell.style.fontSize = '10px';
+      cell.textContent = task.label;
+      cell.title = task.detail;
+      cell.onclick = () => {
+        document.getElementById('dp-title').textContent = `Día ${d} · ${track.label}: ${task.label}`;
+        document.getElementById('dp-body').textContent = task.detail;
+        document.getElementById('dp-body').style.color = 'var(--ink-mid)';
+      };
+    } else {
+      cell.style.background = 'rgba(0,0,0,0.03)';
+      cell.style.border = '1px solid transparent';
+    }
+    grid.appendChild(cell);
+  }
+});
+
+// Milestones row
+const msLabel = document.createElement('div');
+msLabel.className = 'label';
+msLabel.style.fontSize = '11px';
+msLabel.style.color = 'var(--ink-faint)';
+msLabel.textContent = 'Hitos';
+grid.appendChild(msLabel);
+
+for (let d = 1; d <= DAYS; d++) {
+  const cell = document.createElement('div');
+  cell.style.display = 'flex';
+  cell.style.alignItems = 'center';
+  cell.style.justifyContent = 'center';
+  cell.style.padding = '2px 0';
+  if (milestones[d]) {
+    const badge = document.createElement('span');
+    badge.className = 'milestone';
+    badge.textContent = milestones[d];
+    cell.appendChild(badge);
+  }
+  grid.appendChild(cell);
+}
+</script>
+</body>
+</html>

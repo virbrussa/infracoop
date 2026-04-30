@@ -1,0 +1,30 @@
+# Claude Code
+CLAUDE.md
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Archives and temp exports
+*.tmp
+*.bak
+
+# Node
+node_modules/
+dist/
+.env
+.env.local
+
+# Python
+__pycache__/
+*.pyc
+scripts/import/import_log.json
+scripts/seed/output/
+.superpowers/
