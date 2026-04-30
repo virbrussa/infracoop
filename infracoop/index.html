@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Infra.Coop · Motor de Brechas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          ink:   '#1A0A2E',
+          plum:  '#6C3FA0',
+          plum2: '#9472BC',
+          haze:  '#F5F0FF',
+          paper: '#FAF7F2',
+          line:  '#E6DEF1',
+          rose:  '#C2185B',
+          amber: '#C77B0E',
+          moss:  '#3F7A4E',
+          datab: '#2E5AAC',
+          teal:  '#1F7A7A'
+        },
+        fontFamily: {
+          serif: ['"DM Serif Display"','serif'],
+          sans:  ['"Instrument Sans"','system-ui','sans-serif'],
+          mono:  ['"DM Mono"','ui-monospace','monospace']
+        }
+      }
+    }
+  }
+</script>
+<style>
+  html, body { background: #FAF7F2; color: #1A0A2E; }
+  body { font-family: "Instrument Sans", system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+  /* paper grain */
+  body::before {
+    content:""; position: fixed; inset:0; pointer-events:none; z-index:0;
+    background-image: radial-gradient(rgba(26,10,46,0.035) 1px, transparent 1px);
+    background-size: 3px 3px; mix-blend-mode: multiply;
+  }
+  .num { font-feature-settings: "tnum" 1, "ss01" 1; }
+  .display-italic { font-family: "DM Serif Display", serif; font-style: italic; }
+  /* hide scrollbars on horizontal pill row */
+  .nopills::-webkit-scrollbar { display: none; }
+  @keyframes scoreSweep { from { stroke-dashoffset: var(--start); } to { stroke-dashoffset: var(--end); } }
+  .score-arc { animation: scoreSweep .9s cubic-bezier(.2,.7,.2,1) both; }
+  @keyframes barGrow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+  .bar-grow { transform-origin: left center; animation: barGrow .7s cubic-bezier(.2,.7,.2,1) both; }
+  @keyframes fadeUp { from { opacity:0; transform: translateY(8px); } to { opacity:1; transform:none; } }
+  .fade-up { animation: fadeUp .5s ease both; }
+  .ring-plum:focus { outline: none; box-shadow: 0 0 0 3px rgba(108,63,160,0.25); }
+  /* selection */
+  ::selection { background: #E5D7F7; color: #1A0A2E; }
+</style>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body class="min-h-screen">
+  <div id="root" class="relative" style="z-index:1"></div>
+  <script type="text/babel" src="app.jsx"></script>
+</body>
+</html>

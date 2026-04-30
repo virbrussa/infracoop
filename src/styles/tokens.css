@@ -1,0 +1,185 @@
+:root {
+  /* ── Ink scale — dark neutrals, purple only in faint tones ── */
+  --ink:        #1A1916;
+  --ink-mid:    #3D3550;
+  --ink-light:  #8472A0;
+  --ink-faint:  #E6DEF1;
+
+  /* ── Surfaces ── */
+  --paper:      #FAF7F2;
+  --paper-warm: #F5F0FF;   /* haze — input bg, highlights */
+  --surface:    #FFFFFF;
+
+  /* ── Brand / accent ── */
+  --accent:       #7A4FA3;
+  --accent-hover: #6A3E91;
+  --accent-deep:  #5B2E86;
+  --accent-muted: #A07CC2;
+  --accent-bg:    #F5F0FF;   /* haze */
+
+  /* ── Gap severity ── */
+  --gap-crit:   #C2185B;   /* rose  — brecha crítica  */
+  --gap-part:   #C77B0E;   /* amber — brecha parcial  */
+  --gap-cov:    #3F7A4E;   /* moss  — bien cubierto   */
+
+  /* ── Status ── */
+  --ok:         #3F7A4E;
+  --ok-bg:      #EBF5EE;
+  --warn:       #C77B0E;
+  --warn-bg:    #FDF3E3;
+
+  /* ── Agenda colors ── */
+  --agenda-tec:        #1F7A7A;   /* teal  */
+  --agenda-tec-bg:     #E6F5F5;
+  --agenda-datos:      #2E5AAC;   /* datab */
+  --agenda-datos-bg:   #EEF2FB;
+  --agenda-genero:     #7A4FA3;   /* plum actualizado */
+  --agenda-genero-bg:  #F5F0FF;
+
+  /* ── Typography ── */
+  --serif: 'DM Serif Display', Georgia, serif;
+  --sans:  'Instrument Sans', system-ui, sans-serif;
+  --mono:  'DM Mono', 'Courier New', monospace;
+
+  /* ── Shape ── */
+  --r:    8px;
+  --r-lg: 16px;   /* rounded-2xl */
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { -webkit-font-smoothing: antialiased; }
+
+body {
+  font-family: var(--sans);
+  background: var(--paper);
+  color: var(--ink);
+  min-height: 100vh;
+  line-height: 1.6;
+}
+
+/* Paper grain texture */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-image: radial-gradient(rgba(26,10,46,0.03) 1px, transparent 1px);
+  background-size: 3px 3px;
+  mix-blend-mode: multiply;
+}
+
+/* Selection */
+::selection { background: #E5D7F7; color: #1A0A2E; }
+
+/* Buttons */
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 9999px;
+  padding: 10px 22px;
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background .15s, transform .1s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  letter-spacing: .01em;
+}
+.btn-primary:hover { background: var(--accent-hover); }
+.btn-primary:active { transform: scale(.98); }
+.btn-primary:disabled { background: var(--ink-faint); cursor: not-allowed; color: var(--ink-light); }
+
+.btn-ghost {
+  background: var(--surface);
+  color: var(--ink);
+  border: 1px solid var(--ink-faint);
+  border-radius: 9999px;
+  padding: 8px 16px;
+  font-family: var(--sans);
+  font-size: 13px;
+  cursor: pointer;
+  transition: background .15s, border-color .15s;
+}
+.btn-ghost:hover { background: var(--paper-warm); border-color: var(--accent); }
+
+/* Cards */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--ink-faint);
+  border-radius: var(--r-lg);
+  padding: 1.5rem;
+}
+
+/* Section label — mono eyebrow with ruled line */
+.section-label {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 1rem;
+}
+.section-label span {
+  font-size: 13px;
+  font-family: var(--mono);
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--accent);
+  white-space: nowrap;
+}
+.section-label::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--ink-faint);
+}
+
+/* Badges */
+.gap-category-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 500;
+  font-family: var(--mono);
+  border: 1px solid;
+}
+.gap-category-badge.critica  { background: #FFF0F4; color: var(--gap-crit); border-color: #F5B8C8; }
+.gap-category-badge.parcial  { background: #FEF8EE; color: var(--gap-part); border-color: #F0CEAA; }
+.gap-category-badge.cubierta { background: var(--ok-bg); color: var(--gap-cov); border-color: #C2DFCC; }
+
+.agenda-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 500;
+  font-family: var(--mono);
+  border: 1px solid;
+}
+.agenda-badge.tecnologica { background: var(--agenda-tec-bg); color: var(--agenda-tec); border-color: #A8D4D4; }
+.agenda-badge.datos       { background: var(--agenda-datos-bg); color: var(--agenda-datos); border-color: #B8C8ED; }
+.agenda-badge.genero      { background: var(--agenda-genero-bg); color: var(--agenda-genero); border-color: #D4B8EA; }
+
+/* Typography helpers */
+.label-mono {
+  font-size: 12px;
+  font-family: var(--mono);
+  color: var(--ink-light);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.display-italic {
+  font-family: var(--serif);
+  font-style: italic;
+}
+
+.num { font-feature-settings: "tnum" 1, "ss01" 1; }
