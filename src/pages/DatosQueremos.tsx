@@ -12,7 +12,7 @@ import type { SemanaStats } from '../types'
 const AGENDA_CFG = {
   tecnologica: { color: '#0C447C', bar: '#378ADD', label: 'Agenda Tecnológica' },
   datos:       { color: '#3C3489', bar: '#7F77DD', label: 'Agenda de Datos' },
-  genero:      { color: '#72243E', bar: '#D4537E', label: 'Agenda de Género' },
+  genero:      { color: '#7A4FA3', bar: '#A07CC2', label: 'Agenda de Género' },
 } as const
 
 type AgendaKey = keyof typeof AGENDA_CFG
@@ -165,7 +165,7 @@ function StackedWeekChart({ semanas }: { semanas: SemanaStats[] }) {
           />
           <Bar dataKey="tecnologica" stackId="a" fill="#378ADD" name="Ag. Tecnológica" isAnimationActive />
           <Bar dataKey="datos"       stackId="a" fill="#7F77DD" name="Ag. de Datos"    isAnimationActive />
-          <Bar dataKey="genero"      stackId="a" fill="#D4537E" name="Ag. de Género"   isAnimationActive radius={[2, 2, 0, 0]} />
+          <Bar dataKey="genero"      stackId="a" fill="#A07CC2" name="Ag. de Género"   isAnimationActive radius={[2, 2, 0, 0]} />
           <Line
             type="monotone"
             dataKey="total"
@@ -208,8 +208,8 @@ function AgendaDemandCard({ agKey, sem, baselineScore }: {
         </div>
       </div>
       <div className="agenda-evol-bars">
-        <div>
-          <div className="evol-bar-label" style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-start' }}>
+          <div className="evol-bar-label" style={{ display: 'flex', alignItems: 'flex-start', gap: 4 }}>
             Brecha base del corpus
             <InfoTooltip text="Nivel de brecha calculado a partir de las consultas de referencia sobre este tema, antes de recibir preguntas de la comunidad. Barra más larga = mayor brecha preexistente." />
           </div>
@@ -218,15 +218,18 @@ function AgendaDemandCard({ agKey, sem, baselineScore }: {
           </div>
           <div className="evol-bar-pct">{baseScore}% de brecha sin preguntas</div>
         </div>
-        <div>
+        <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-start' }}>
           {noData ? (
-            <div style={{ fontFamily: 'var(--mono)', fontSize: 12, color: 'var(--ink-light)', paddingTop: 10 }}>
+            <div style={{ fontFamily: 'var(--mono)', fontSize: 12, color: 'var(--ink-light)', paddingTop: 2 }}>
               — Sin preguntas en este período —
             </div>
           ) : (
             <>
-              <div className="evol-bar-label" style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                Brecha en preguntas recibidas ({sem.label})
+              <div className="evol-bar-label" style={{ display: 'flex', alignItems: 'flex-start', gap: 4 }}>
+                <span>
+                  Brecha en preguntas recibidas
+                  <span style={{ display: 'block', opacity: 0.75 }}>{sem.label}</span>
+                </span>
                 <InfoTooltip text="Promedio del score de brecha de las preguntas recibidas en esta agenda durante el período seleccionado. Un score alto indica que las preguntas buscan datos que el corpus aún no tiene." />
               </div>
               <div className="evol-bar-track">

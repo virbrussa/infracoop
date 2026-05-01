@@ -29,11 +29,11 @@
   --warn-bg:    #FDF3E3;
 
   /* ── Agenda colors ── */
-  --agenda-tec:        #1F7A7A;   /* teal  */
-  --agenda-tec-bg:     #E6F5F5;
-  --agenda-datos:      #2E5AAC;   /* datab */
-  --agenda-datos-bg:   #EEF2FB;
-  --agenda-genero:     #7A4FA3;   /* plum actualizado */
+  --agenda-tec:        #0C447C;
+  --agenda-tec-bg:     #E6F1FB;
+  --agenda-datos:      #3C3489;
+  --agenda-datos-bg:   #EEEDFE;
+  --agenda-genero:     #7A4FA3;
   --agenda-genero-bg:  #F5F0FF;
 
   /* ── Typography ── */
@@ -151,7 +151,7 @@ body::before {
 }
 .gap-category-badge.critica  { background: #FFF0F4; color: var(--gap-crit); border-color: #F5B8C8; }
 .gap-category-badge.parcial  { background: #FEF8EE; color: var(--gap-part); border-color: #F0CEAA; }
-.gap-category-badge.cubierta { background: var(--ok-bg); color: var(--gap-cov); border-color: #C2DFCC; }
+.gap-category-badge.cubierta { background: var(--accent-bg); color: var(--accent); border-color: #C5B0E0; }
 
 .agenda-badge {
   display: inline-flex;

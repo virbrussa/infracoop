@@ -162,30 +162,26 @@ export function Landing() {
 
         {/* Los datos que queremos */}
         <Section eyebrow="03 · ¿Qué datos queremos?" title="Evolución de la demanda colectiva">
+          <p style={{ marginBottom: '1rem' }}>
+            La lupa está puesta en visibilizar la evolución desde los datos que tenemos a los datos que queremos.
+          </p>
           <p>
-            En este apartado el algoritmo cooperativo llega a su meta (al menos por ahora). La lupa está puesta en la evolución entre los datos que tenemos y los datos que queremos — seguida mes a mes por pregunta y por agenda.
+            En esa evolución —giro— no sólo se exploran con evidencia las brechas, también se pone en debate qué es por tanto un dato de calidad. Ello en el contexto de evidencia disponible respecto a la fragmentación, escasez, falta de apertura y/o pertinencia de datos en la agenda de género.
           </p>
         </Section>
 
         {/* Futuras capas */}
         <Section eyebrow="En proceso" title="Las capas que vienen">
           <p style={{ marginBottom: '1.5rem' }}>
-            La Capa de Monitor es la primera prototipada. Hemos ideado para implementar a futuro:
+            Infracoop está pensada en capas de intervención-acción. El monitor es la primera capa pública del prototipo ideado en el marco de Data Cooperativas Latinas. A futuro se buscarán implementar otras capas tales como:
           </p>
 
           <FutureLayer title="Capa federada de nodos">
-            <p>Un foro y comunidad de aprendizaje cooperativo.</p>
-            <p>Exploración de las intervenciones del modelo de gobernanza para la incidencia en distintos espacios territoriales y temáticos.</p>
-            <p>Aplicación de metodologías del Ciclo de Datos que queremos por temática y nodos.</p>
+            <p>Comunidad de práctica y activación de Ciclos de Datos temáticos.</p>
           </FutureLayer>
 
-          <FutureLayer title="Capa de datos cooperativos">
-            <p>Espacio seguro y cuidado para archivar tus datos ciudadanos.</p>
-            <p>Con distintos niveles de acceso por roles y/o criterios de gobernanza del Protocolo.</p>
-          </FutureLayer>
-
-          <FutureLayer title="Protocolo de gobernanza de la Infra.Coop">
-            <p>El marco normativo interno que rige cómo se toman decisiones sobre los datos cooperativos.</p>
+          <FutureLayer title="Capa cooperativa de datos">
+            <p>Espacio seguro para el intercambio de nuevos datos ciudadanos. Protocolo de gobernanza y niveles de cooperación.</p>
           </FutureLayer>
         </Section>
 

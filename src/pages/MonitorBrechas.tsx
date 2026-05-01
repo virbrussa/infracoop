@@ -116,7 +116,7 @@ function qualityDims(hit: SearchHit): { label: string; value: number; color: str
 
   // SVG fill doesn't evaluate CSS vars — use hex values from tokens.css
   const color = (v: number) =>
-    v >= 0.7 ? '#3F7A4E' : v >= 0.4 ? '#C77B0E' : '#E6DEF1'
+    v >= 0.7 ? '#7A4FA3' : v >= 0.4 ? '#C77B0E' : '#E6DEF1'
 
   const orgScore  = hit.fuente !== null ? 0.9 : 0.15
   const geoScore  = hit.pais   !== null ? 0.9 : 0.15
@@ -196,7 +196,7 @@ function ScorePanel({ resultado }: { resultado: GapResult }) {
   const colorMap = {
     critica: 'var(--gap-crit)',
     parcial: 'var(--gap-part)',
-    cubierta: 'var(--gap-cov)',
+    cubierta: 'var(--accent)',
   }
   const color = colorMap[resultado.categoria]
 
@@ -330,7 +330,7 @@ function ResultsColumns({ resultado, selectedChips }: { resultado: GapResult; se
         }
         <div className="results-col-legend">
           <span className="results-col-legend-item">
-            <span className="results-col-legend-dot" style={{ background: 'var(--gap-cov)' }} />
+            <span className="results-col-legend-dot" style={{ background: 'var(--accent)' }} />
             Completa — dato accesible y bien documentado
           </span>
           <span className="results-col-legend-item">
@@ -361,7 +361,7 @@ function ResultsColumns({ resultado, selectedChips }: { resultado: GapResult; se
         }
         <div className="results-col-legend">
           <span className="results-col-legend-item">
-            <span className="results-col-legend-dot" style={{ background: 'var(--gap-cov)' }} />
+            <span className="results-col-legend-dot" style={{ background: 'var(--accent)' }} />
             Completa — dato accesible y bien documentado
           </span>
           <span className="results-col-legend-item">
@@ -575,6 +575,23 @@ export function MonitorBrechas() {
               el problema detrás de esos datos. En el ciclo de datos esa primera fase se llama{' '}
               <em style={{ color: 'var(--ink-mid)' }}>problematización</em> y es allí donde queremos incidir.
             </p>
+          </div>
+
+          <div style={{
+            marginTop: '1rem',
+            padding: '.75rem 1rem',
+            borderRadius: 'var(--r)',
+            background: 'var(--accent-bg)',
+            border: '1px solid var(--ink-faint)',
+          }}>
+            <p style={{ fontSize: 11, fontFamily: 'var(--mono)', color: 'var(--accent)', letterSpacing: '.06em', textTransform: 'uppercase', fontWeight: 600, marginBottom: 6 }}>
+              Estamos en fase beta — tené en cuenta al ingresar tu pregunta:
+            </p>
+            <ul style={{ fontSize: 13, color: 'var(--ink-mid)', lineHeight: 1.8, margin: 0, paddingLeft: '1.25rem' }}>
+              <li>No colocar símbolos o íconos (*-+&lt;)</li>
+              <li>Si colocás alguna referencia geográfica como país o ciudad, tené en cuenta que el sistema trabaja con un corpus estándar de nombres.</li>
+              <li>El rango temporal de esta fase contiene datos desde el año 2019 al 2026.</li>
+            </ul>
           </div>
         </div>
 

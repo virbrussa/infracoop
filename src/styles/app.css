@@ -219,8 +219,8 @@
   border-radius: 4px;
   background: linear-gradient(
     to right,
-    var(--gap-cov) 0%,
-    var(--gap-part) 50%,
+    var(--accent) 0%,
+    var(--gap-part) 55%,
     var(--gap-crit) 100%
   );
   position: relative;
@@ -796,8 +796,9 @@
   background: var(--surface);
   border: 1px solid var(--ink-faint);
   border-radius: var(--r-lg);
-  padding: 1.5rem 1.75rem;
+  padding: 1.75rem 1.75rem 2.25rem;
   border-left-width: 3px;
+  overflow: visible;
 }
 
 .agenda-evol-header {
@@ -805,7 +806,7 @@
   justify-content: space-between;
   align-items: flex-start;
   gap: 8px;
-  margin-bottom: 14px;
+  margin-bottom: 1.25rem;
 }
 
 .agenda-evol-title {
@@ -839,14 +840,22 @@
 .agenda-evol-bars {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  gap: 16px;
+  margin-top: 4px;
+  align-items: start;
+}
+
+.agenda-evol-bars > div {
+  min-width: 0;
 }
 
 .evol-bar-label {
-  font-size: 13px;
+  font-size: 12px;
   font-family: var(--mono);
   color: var(--ink-light);
-  margin-bottom: 6px;
+  margin-bottom: 8px;
+  line-height: 1.45;
+  min-height: 2.6em;
 }
 
 .evol-bar-track {
@@ -866,7 +875,7 @@
   font-size: 13px;
   font-family: var(--mono);
   color: var(--ink-mid);
-  margin-top: 5px;
+  margin-top: 8px;
 }
 
 /* ═══ Quality distribution bar ═══ */
