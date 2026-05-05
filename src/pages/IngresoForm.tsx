@@ -138,10 +138,10 @@ export function IngresoForm() {
           <span>05 · Ingresar datos</span>
         </div>
         <h1 style={{ fontFamily: 'var(--serif)', fontSize: '2rem', marginBottom: '0.5rem' }}>
-          Sube tu aporte a Infra.Coop
+          Subí tu aporte a Infra.Coop
         </h1>
         <p style={{ color: 'var(--ink-mid)', fontSize: '14px', marginBottom: '2rem', lineHeight: 1.65 }}>
-          Puedes colaborar compartiendo un enlace a un dataset (datos abiertos, estadísticos u otros)
+          Podés colaborar compartiendo un link de un dataset (datos abiertos/estadísticos/otros)
           o una normativa perteneciente a la temática del proyecto.
           Los envíos pasarán por una instancia de curaduría antes de ser parte de la Base de Datos.
         </p>
