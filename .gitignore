@@ -2,6 +2,9 @@
 CLAUDE.md
 .claude/
 
+# Local change notes
+changes(ignore)/
+
 # OS
 .DS_Store
 Thumbs.db
