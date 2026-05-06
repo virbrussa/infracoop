@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { NavLink } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 
@@ -11,6 +12,10 @@ const NAV_ITEMS = [
 
 export function Header() {
   const { user, signOut } = useAuth()
+  const [drawerOpen, setDrawerOpen] = useState(false)
+
+  function closeDrawer() { setDrawerOpen(false) }
+
   return (
     <header className="site-header">
       <div className="site-header-inner">
@@ -23,6 +28,7 @@ export function Header() {
           </div>
         </NavLink>
 
+        {/* Desktop nav */}
         <nav className="site-nav" aria-label="Navegación principal">
           {NAV_ITEMS.map(({ to, label, num }) => (
             <NavLink
@@ -37,8 +43,9 @@ export function Header() {
           ))}
         </nav>
 
+        {/* Desktop user block */}
         {user && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginLeft: 'auto' }}>
+          <div className="site-header-user">
             <span style={{ fontFamily: 'var(--mono)', fontSize: '11px', color: 'var(--ink-light)' }}>
               {user.email}
             </span>
@@ -60,8 +67,79 @@ export function Header() {
           </div>
         )}
 
+        {/* Hamburger button — mobile only */}
+        <button
+          className="nav-hamburger"
+          onClick={() => setDrawerOpen(true)}
+          aria-label="Abrir menú"
+          aria-expanded={drawerOpen}
+        >
+          ☰
+        </button>
       </div>
+
+      {/* Overlay */}
+      <div
+        className={`nav-drawer-overlay${drawerOpen ? ' open' : ''}`}
+        onClick={closeDrawer}
+        aria-hidden="true"
+      />
+
+      {/* Drawer */}
+      <nav
+        className={`nav-drawer${drawerOpen ? ' open' : ''}`}
+        aria-label="Menú móvil"
+      >
+        <div className="nav-drawer-header">
+          <span className="nav-drawer-title">Menú</span>
+          <button
+            className="nav-drawer-close"
+            onClick={closeDrawer}
+            aria-label="Cerrar menú"
+          >
+            ✕
+          </button>
+        </div>
+
+        <ul className="nav-drawer-list">
+          {NAV_ITEMS.map(({ to, label, num }) => (
+            <li key={to}>
+              <NavLink
+                to={to}
+                end={to === '/'}
+                className={({ isActive }) => `nav-drawer-item${isActive ? ' active' : ''}`}
+                onClick={closeDrawer}
+              >
+                <span className="nav-pill-num">{num}</span>
+                {label}
+              </NavLink>
+            </li>
+          ))}
+        </ul>
+
+        {user && (
+          <div className="nav-drawer-footer">
+            <span style={{ fontFamily: 'var(--mono)', fontSize: '11px', color: 'var(--ink-light)' }}>
+              {user.email}
+            </span>
+            <button
+              onClick={() => { signOut(); closeDrawer() }}
+              style={{
+                fontFamily: 'var(--mono)',
+                fontSize: '12px',
+                padding: '4px 12px',
+                border: '1px solid var(--ink-light)',
+                background: 'transparent',
+                cursor: 'pointer',
+                borderRadius: '3px',
+                color: 'var(--ink)',
+              }}
+            >
+              Salir
+            </button>
+          </div>
+        )}
+      </nav>
     </header>
   )
 }
-

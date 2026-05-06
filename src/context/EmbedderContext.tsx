@@ -3,13 +3,19 @@ import { createContext, useContext, useEffect, useRef, useState, useCallback } f
 export interface EmbedderContextType {
   status: 'loading' | 'ready' | 'error'
   progress: string
+  percent: number
+  isFirstDownload: boolean
   embed: (text: string) => Promise<Float32Array>
   error: string | null
 }
 
+const MODEL_CACHE_KEY = 'infracoop_model_cached'
+
 const EmbedderContext = createContext<EmbedderContextType>({
   status: 'loading',
   progress: 'Iniciando modelo…',
+  percent: 0,
+  isFirstDownload: false,
   embed: () => Promise.reject(new Error('EmbedderContext not mounted')),
   error: null,
 })
@@ -24,7 +30,9 @@ type PendingReject = (err: Error) => void
 export function EmbedderProvider({ children }: { children: React.ReactNode }) {
   const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading')
   const [progress, setProgress] = useState('Iniciando modelo…')
+  const [percent, setPercent] = useState(0)
   const [error, setError] = useState<string | null>(null)
+  const isFirstDownload = !localStorage.getItem(MODEL_CACHE_KEY)
 
   const workerRef = useRef<Worker | null>(null)
   const pendingRef = useRef<Map<string, [PendingResolve, PendingReject]>>(new Map())
@@ -40,9 +48,12 @@ export function EmbedderProvider({ children }: { children: React.ReactNode }) {
       const msg = e.data
       if (msg.type === 'progress') {
         setProgress(msg.message)
+        setPercent(msg.percent ?? 0)
       } else if (msg.type === 'ready') {
         setStatus('ready')
         setProgress('Modelo listo')
+        setPercent(100)
+        try { localStorage.setItem(MODEL_CACHE_KEY, '1') } catch { /* ignore */ }
       } else if (msg.type === 'result') {
         const pending = pendingRef.current.get(msg.id)
         if (pending) {
@@ -81,7 +92,7 @@ export function EmbedderProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   return (
-    <EmbedderContext.Provider value={{ status, progress, embed, error }}>
+    <EmbedderContext.Provider value={{ status, progress, percent, isFirstDownload, embed, error }}>
       {children}
     </EmbedderContext.Provider>
   )

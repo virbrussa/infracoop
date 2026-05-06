@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { BarChart, Bar, Cell } from 'recharts'
 import { useNavigate } from 'react-router-dom'
 import { useMotorBrechas } from '../hooks/useMotorBrechas'
@@ -6,6 +6,39 @@ import { useSearchIndex } from '../context/SearchIndexContext'
 import { useEmbedder } from '../context/EmbedderContext'
 import type { GapResult, SearchHit } from '../types'
 import { Tooltip } from '../components/Tooltip'
+
+const SESSION_KEY = 'infracoop_brechas_session'
+
+interface BrechasSession {
+  query: string
+  resultado: GapResult | null
+  selectedChips: string[]
+}
+
+function readSession(): BrechasSession | null {
+  try {
+    const raw = sessionStorage.getItem(SESSION_KEY)
+    return raw ? (JSON.parse(raw) as BrechasSession) : null
+  } catch {
+    return null
+  }
+}
+
+function writeSession(data: BrechasSession) {
+  try {
+    sessionStorage.setItem(SESSION_KEY, JSON.stringify(data))
+  } catch {
+    // quota exceeded or private browsing — silently ignore
+  }
+}
+
+function clearSession() {
+  try {
+    sessionStorage.removeItem(SESSION_KEY)
+  } catch {
+    // ignore
+  }
+}
 
 const CHIP_KEYWORDS: Record<string, string[]> = {
   'Gobierno Abierto':      ['estadística', 'oficial', 'gobierno', 'abierto', 'transparencia', 'rendición', 'público', 'nacional', 'ministerio', 'instituto', 'censos', 'registro', 'administrativo'],
@@ -492,10 +525,21 @@ function ExampleQuestions({ onSelect }: { onSelect: (q: string) => void }) {
 
 export function MonitorBrechas() {
   const { isReady, error: indexError } = useSearchIndex()
-  const { resultado, isLoading, error: searchError, buscar, limpiar } = useMotorBrechas()
-  const { status: embedderStatus, progress: embedderProgress, error: embedderError } = useEmbedder()
-  const [query, setQuery] = useState('')
-  const [selectedChips, setSelectedChips] = useState<string[]>([])
+  const { status: embedderStatus, progress: embedderProgress, percent: embedderPercent, isFirstDownload, error: embedderError } = useEmbedder()
+
+  // Read sessionStorage once on mount
+  const session = useMemo(() => readSession(), [])
+
+  const { resultado, isLoading, error: searchError, buscar, limpiar } = useMotorBrechas({
+    initialResultado: session?.resultado ?? null,
+  })
+  const [query, setQuery] = useState(session?.query ?? '')
+  const [selectedChips, setSelectedChips] = useState<string[]>(session?.selectedChips ?? [])
+
+  // Persist state on every change
+  useEffect(() => {
+    writeSession({ query, resultado, selectedChips })
+  }, [query, resultado, selectedChips])
 
   function toggleChip(chip: string) {
     setSelectedChips(prev =>
@@ -514,6 +558,7 @@ export function MonitorBrechas() {
     limpiar()
     setQuery('')
     setSelectedChips([])
+    clearSession()
   }
 
   if (embedderStatus === 'loading' || embedderStatus === 'error') {
@@ -524,21 +569,54 @@ export function MonitorBrechas() {
             <p className="hero-eyebrow">Monitoreo de brechas</p>
             <h1>¿Qué datos nos <em>faltan</em>?</h1>
           </div>
-          <div className="search-box" style={{ textAlign: 'center', padding: '2rem' }}>
+          <div className="search-box" style={{ padding: '2rem' }}>
             {embedderStatus === 'error' ? (
               <p className="search-error">{embedderError ?? 'Error cargando el modelo semántico'}</p>
             ) : (
               <>
-                <p className="label-mono" style={{ marginBottom: 8 }}>{embedderProgress}</p>
-                <div style={{
-                  height: 4, background: 'var(--ink-faint)',
-                  borderRadius: 2, overflow: 'hidden',
-                }}>
+                {isFirstDownload && (
                   <div style={{
-                    height: '100%', width: '60%',
+                    marginBottom: '1.25rem',
+                    padding: '0.75rem 1rem',
+                    borderLeft: '3px solid var(--accent)',
+                    borderRadius: '0 var(--r) var(--r) 0',
+                    background: 'var(--accent-bg)',
+                  }}>
+                    <p style={{
+                      fontFamily: 'var(--mono)',
+                      fontSize: 11,
+                      color: 'var(--accent)',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.06em',
+                      fontWeight: 600,
+                      marginBottom: 4,
+                    }}>
+                      Solo ocurre una vez
+                    </p>
+                    <p style={{ fontSize: 13, color: 'var(--ink-mid)', lineHeight: 1.6, margin: 0 }}>
+                      El modelo de búsqueda semántica (~330 MB) se descarga la primera vez y queda guardado en tu navegador.
+                      Las próximas visitas cargarán en segundos.
+                    </p>
+                  </div>
+                )}
+
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 6 }}>
+                  <p className="label-mono" style={{ margin: 0, fontSize: 11 }}>{embedderProgress}</p>
+                  {isFirstDownload && embedderPercent > 0 && (
+                    <span style={{ fontFamily: 'var(--mono)', fontSize: 11, color: 'var(--ink-light)' }}>
+                      {Math.round(embedderPercent * 3.3)} / 330 MB
+                    </span>
+                  )}
+                </div>
+
+                <div style={{ height: 6, background: 'var(--ink-faint)', borderRadius: 3, overflow: 'hidden' }}>
+                  <div style={{
+                    height: '100%',
+                    width: embedderPercent > 0 ? `${embedderPercent}%` : '100%',
                     background: 'var(--accent)',
-                    borderRadius: 2,
-                    animation: 'pulse 1.5s ease-in-out infinite',
+                    borderRadius: 3,
+                    transition: 'width 0.3s ease',
+                    animation: embedderPercent === 0 ? 'pulse 1.5s ease-in-out infinite' : 'none',
                   }} />
                 </div>
               </>

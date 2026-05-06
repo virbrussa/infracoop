@@ -15,11 +15,15 @@ interface MotorState {
   error: string | null
 }
 
-export function useMotorBrechas() {
+interface UseMotorBrechasOptions {
+  initialResultado?: GapResult | null
+}
+
+export function useMotorBrechas({ initialResultado = null }: UseMotorBrechasOptions = {}) {
   const { index } = useSearchIndex()
   const { embed } = useEmbedder()
   const [state, setState] = useState<MotorState>({
-    resultado: null,
+    resultado: initialResultado,
     isLoading: false,
     error: null,
   })
