@@ -102,7 +102,7 @@ function SearchBox({
       {indexError && <p className="search-error">{indexError}</p>}
       <textarea
         className="search-textarea"
-        placeholder="¿Qué datos de género necesitas? Ej: «¿Existen datos sobre feminicidio desagregados por estado?»"
+        placeholder="¿Qué datos de género necesitas? Ej: ¿Existen datos sobre feminicidio desagregados por estado?"
         maxLength={400}
         value={value}
         rows={3}
@@ -434,10 +434,10 @@ function ChipsBar({ resultado, query, selected, onToggle }: {
       <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
         <span className="chips-bar-label" style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
           Termómetro de Incidencia
-          <Tooltip text="Seleccioná uno o más marcos para filtrar y ordenar los resultados según el enfoque de incidencia política que más te interese. También personaliza el diagnóstico descargable." />
+          <Tooltip text="Selecciona uno o más marcos para filtrar y ordenar los resultados según el enfoque de incidencia política que más te interese. También personaliza el diagnóstico descargable." />
         </span>
         <span style={{ fontSize: 12, color: 'var(--ink-light)', fontFamily: 'var(--sans)' }}>
-          Elegí los marcos de incidencia para personalizar el diagnóstico.
+          Elige los marcos de incidencia para personalizar el diagnóstico.
         </span>
       </div>
       <div className="chips-bar-row">
@@ -485,7 +485,7 @@ function ExampleQuestions({ onSelect }: { onSelect: (q: string) => void }) {
         color: 'var(--ink-light)',
         marginBottom: '0.75rem',
       }}>
-        Preguntas de ejemplo — hacé clic para buscar
+        Preguntas de ejemplo — haz clic para buscar
       </p>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
         {EXAMPLE_QUESTIONS.map(q => (
@@ -634,7 +634,7 @@ export function MonitorBrechas() {
           <p className="hero-eyebrow">Monitoreo de brechas</p>
           <h1>¿Qué datos nos <em>faltan</em>?</h1>
           <p className="hero-sub">
-            Escribí una pregunta sobre datos de género que te interese. El monitor busca qué datos existen,
+            Escribe una pregunta sobre datos de género que te interese. El monitor busca qué datos existen,
             qué exige la normativa vigente y dónde está la brecha de datos teniendo en cuenta tu info.
           </p>
           <div style={{
@@ -663,11 +663,11 @@ export function MonitorBrechas() {
             border: '1px solid var(--ink-faint)',
           }}>
             <p style={{ fontSize: 11, fontFamily: 'var(--mono)', color: 'var(--accent)', letterSpacing: '.06em', textTransform: 'uppercase', fontWeight: 600, marginBottom: 6 }}>
-              Estamos en fase beta — tené en cuenta al ingresar tu pregunta:
+              Estamos en fase beta — ten en cuenta al ingresar tu pregunta:
             </p>
             <ul style={{ fontSize: 13, color: 'var(--ink-mid)', lineHeight: 1.8, margin: 0, paddingLeft: '1.25rem' }}>
               <li>No colocar símbolos o íconos (*-+&lt;)</li>
-              <li>Si colocás alguna referencia geográfica como país o ciudad, tené en cuenta que el sistema trabaja con un corpus estándar de nombres.</li>
+              <li>Si incluyes alguna referencia geográfica como país o ciudad, ten en cuenta que el sistema trabaja con un corpus estándar de nombres.</li>
               <li>El rango temporal de esta fase contiene datos desde el año 2019 al 2026.</li>
             </ul>
           </div>
