@@ -198,7 +198,7 @@ function HitRow({ hit, index, normalizedSim }: { hit: SearchHit; index: number; 
       <div className="hit-sim-wrap" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
         <span className="hit-sim-label" style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
           calidad
-          <Tooltip text="4 dimensiones de calidad del dato — org: tiene organismo fuente · geo: tiene país asignado · año: año de publicación (más reciente = mejor) · meta: calidad general de metadatos (Completa/Parcial/Nula)." />
+          <Tooltip text="4 dimensiones de calidad del dato: org = tiene organismo fuente, geo = tiene país asignado, año = fecha de publicación (más reciente es mejor), meta = calidad general de metadatos (Completa, Parcial o Nula)." />
         </span>
         <BarChart
           width={80}
@@ -239,7 +239,7 @@ function ScorePanel({ resultado }: { resultado: GapResult }) {
         <div className="score-number" style={{ color }}>{pct}</div>
         <div className="score-label label-mono" style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
           score de brecha
-          <Tooltip text="0 = dato completamente cubierto en el corpus · 100 = brecha crítica, pocos o ningún dato disponible para tu pregunta." />
+          <Tooltip text="0 significa que el dato está completamente cubierto en el corpus. 100 significa brecha crítica: pocos o ningún dato disponible para tu pregunta." />
         </div>
         <div style={{ fontSize: 10, fontFamily: 'var(--mono)', color: 'var(--ink-light)', marginTop: 2 }}>
           0 = cubierto · 100 = crítico
@@ -265,7 +265,7 @@ function ScorePanel({ resultado }: { resultado: GapResult }) {
           <span style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--ink-light)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
             distribución por agenda
           </span>
-          <Tooltip text="Proporción de la brecha atribuible a cada agenda, calculada sobre los datasets y normativas encontrados para tu pregunta." />
+          <Tooltip text="Distribución de la brecha entre las tres agendas temáticas, calculada a partir de los datasets y normativas encontrados para tu pregunta." />
         </div>
         {[
           { tipo: 'tecnologica', label: 'Ag. Tecnológica', val: resultado.agendas.tecnologica },
